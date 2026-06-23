@@ -1,0 +1,16 @@
+{
+  "name": "scoring-backend",
+  "version": "1.0.0",
+  "description": "Node.js + MongoDB backend for the Looker Studio scoring dashboard",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "googleapis": "^173.0.0",
+    "mongodb": "^6.21.0"
+  }
+}
