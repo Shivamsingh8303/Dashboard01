@@ -23,7 +23,33 @@ import {
    api("getData")  ->  POST {API_URL}/getData
    api("loginUser", {...})  ->  POST {API_URL}/loginUser
 ----------------------------------------------------------------- */
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = (
+  import.meta.env.VITE_API_URL ||
+  "https://dashboard01-hj1f.onrender.com"
+).replace(/\/$/, "");
+
+async function api(action, payload = {}) {
+  try {
+    const res = await fetch(`${API_URL}/${action}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Request failed");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+}
 
 async function api(action, payload = {}) {
   try {
