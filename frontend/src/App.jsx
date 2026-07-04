@@ -10,7 +10,8 @@ import {
   ChevronUp, ChevronDown, ArrowUpDown, Menu, ChevronLeft, ChevronRight,
   Lock, Mail, Eye, EyeOff, LogOut, FileText, FileSpreadsheet, FileJson,
   Image as ImageIcon, Printer, ShieldCheck, User, Phone, AtSign, Check,
-  Trash2, Ban, RotateCcw, Settings, RefreshCw, ArrowUp, Rows3, Clock3
+  Trash2, Ban, RotateCcw, Settings, RefreshCw, ArrowUp, Rows3, Clock3,
+  Columns
 } from "lucide-react";
 
 /* ----------------------------------------------------------------
@@ -705,9 +706,28 @@ function LoginPage({ onLogin }) {
         .lk-login input:focus{outline:none;border-color:#1A73E8!important;box-shadow:0 0 0 3px rgba(26,115,232,.2)!important}
         .lk-login button{transition:transform .12s, background .2s, box-shadow .2s}
         .lk-login button:active{transform:scale(.98)}
+        /* Tablet */
+        @media(max-width:768px){
+          .lk-login-page{padding:32px 24px!important}
+          .lk-login{max-width:420px!important}
+        }
+        /* Mobile */
         @media(max-width:520px){
-          .lk-login-page{min-height:100dvh!important;padding:12px!important;place-items:start center!important;overflow-y:auto}
-          .lk-login{max-width:none!important;border-radius:16px!important;padding:24px 18px!important;margin:auto 0!important}
+          .lk-login-page{min-height:100dvh!important;padding:24px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow-y:auto}
+          .lk-login{width:100%!important;max-width:100%!important;border-radius:16px!important;padding:26px 22px!important;margin:0!important}
+          .lk-login input{font-size:16px!important}
+          .lk-login button{min-height:46px}
+          .lk-login-logo{height:70px!important;margin-top:-15px!important;margin-left:0!important}
+        }
+        /* Small phones */
+        @media(max-width:380px){
+          .lk-login-page{padding:16px!important}
+          .lk-login{padding:22px 18px!important;border-radius:14px!important}
+          .lk-login-logo{height:60px!important}
+        }
+          {
+         .lk-login-page{min-height:100dvh!important;padding:24px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow-y:auto}
+        .lk-login{width:calc(100% - 48px)!important;max-width:380px!important;border-radius:16px!important;padding:24px 20px!important;margin:0 auto!important}
           .lk-login input{font-size:16px!important}
           .lk-login button{min-height:44px}
         }
@@ -729,14 +749,9 @@ function LoginPage({ onLogin }) {
         border: `1px solid ${t.border}`, boxShadow: "0 24px 60px rgba(60,64,67,.16), 0 4px 16px rgba(60,64,67,.08)",
         padding: "36px 34px", animation: "rise .45s cubic-bezier(.4,0,.2,1) both"
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 6 }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: 9, background: t.primary,
-            display: "grid", placeItems: "center"
-          }}>
-            <LayoutDashboard size={21} color="#fff" />
-          </div>
-         <div style={{ fontWeight: 700, fontSize: 19, color: t.text, letterSpacing: "-.4px" }}>Bhaskar Employee Score</div>
+        <div style={{ display: "flex",flexDirection:"column", alignItems: "center", gap: 11, marginBottom: 10 ,}}>
+         <img src="/bhas.jpeg" alt="logo" style={{ height: 120, width: "auto", objectFit: "contain", display: "block", marginTop: "-20px", marginLeft: "-10px" }} />
+         <div style={{ fontWeight: 700, fontSize: 19, color: t.text, letterSpacing: "-.4px", marginTop:"-20px"}}>Bhaskar Employee Score</div>
         </div>
         <p style={{ margin: "0 0 20px", color: t.sub, fontSize: 13.5 }}>
           {mode === "login" ? "Welcome back — sign in to continue" : "Create your account"}
@@ -1647,8 +1662,8 @@ export default function App() {
   @media(max-width:860px){
           .lk-sidebar{position:fixed!important;z-index:60!important;height:100dvh!important;width:min(280px,86vw)!important;transform:translateX(-110%);transition:transform .32s cubic-bezier(.4,0,.2,1);box-shadow:0 18px 50px rgba(0,0,0,.28)}
           .lk-sidebar.open{transform:none!important}
-          .lk-maincol{margin-left:0!important;padding-top:58px!important;width:100%!important}
-          .lk-header{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100%!important;min-height:58px;flex-wrap:wrap!important;z-index:50!important}
+          .lk-maincol{margin-left:0!important;padding-top:0!important;width:100%!important}
+         .lk-header{position:static!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;min-height:58px;flex-wrap:wrap!important}
           .lk-titlebar{position:static!important;top:auto!important;background:transparent!important}
           .lk-desk{display:none!important}
           .lk-mobtog{display:grid!important;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:9px!important;background:${t.hover}!important}
@@ -1750,16 +1765,7 @@ export default function App() {
         overflowY: "auto", overflowX: "hidden", zIndex: 45,
         WebkitOverflowScrolling: "touch"
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "4px 10px 22px" }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 9, display: "grid", placeItems: "center",
-            background: `linear-gradient(135deg, ${t.primary}, ${t.primary}CC)`,
-            boxShadow: `0 4px 12px ${t.primary}40`
-          }}>
-            <LayoutDashboard size={18} color="#fff" />
-          </div>
-          <span style={{ fontWeight: 700, fontSize: 16.5, letterSpacing: "-.4px" }}>Bhaskar Employee Score</span>
-        </div>
+          <img src="/bhas.jpeg" alt="logo" style={{ height: 135, width: "auto", objectFit: "contain", display: "block", marginTop: "-30px", marginLeft: "-20px"}} />
         <span style={{
           fontSize: 10.5, fontWeight: 700, color: t.sub, letterSpacing: ".8px",
           textTransform: "uppercase", padding: "0 12px 6px"
