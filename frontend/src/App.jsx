@@ -25,31 +25,31 @@ import {
 ----------------------------------------------------------------- */
 const API_URL = (
   import.meta.env.VITE_API_URL ||
-  "https://dashboard01-hj1f.onrender.com"
+  "http://localhost:3000"
 ).replace(/\/$/, "");
 
-async function api(action, payload = {}) {
-  try {
-    const res = await fetch(`${API_URL}/${action}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+// async function api(action, payload = {}) {
+//   try {
+//     const res = await fetch(`${API_URL}/${action}`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(payload),
+//     });
 
-    const data = await res.json();
+//     const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data.message || "Request failed");
-    }
+//     if (!res.ok) {
+//       throw new Error(data.message || "Request failed");
+//     }
 
-    return data;
-  } catch (error) {
-    console.error("API Error:", error);
-    throw error;
-  }
-}
+//     return data;
+//   } catch (error) {
+//     console.error("API Error:", error);
+//     throw error;
+//   }
+// }
 
 async function api(action, payload = {}) {
   try {
@@ -83,13 +83,13 @@ const TOKENS = {
 };
 
 const DEPARTMENTS = [
-  "MDO","PRODUCTION","MAINTENANCE","MARKET & SALES","QC","ADMIN","MIS",
-  "HR","QA","ENERGY SAVING","ACCOUNT","EXCISE","CONSULTANT",
+  "MDO", "PRODUCTION", "MAINTENANCE", "MARKET & SALES", "QC", "ADMIN", "MIS",
+  "HR", "QA", "ENERGY SAVING", "ACCOUNT", "EXCISE", "CONSULTANT",
 ];
 
 const DAY = 86400000;
 
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // Build monthly trend from a (date-filtered) set of rows.
 function monthlyFrom(rows) {
@@ -103,8 +103,10 @@ function monthlyFrom(rows) {
     else return; // no usable month
     if (mo < 0 || mo > 11 || y < 2000) return;
     const key = `${y}-${mo}`;
-    const m = (map[key] ||= { key, y, mo,
-      planned: 0, actual: 0, onTime: 0, late: 0, scoreSum: 0, n: 0 });
+    const m = (map[key] ||= {
+      key, y, mo,
+      planned: 0, actual: 0, onTime: 0, late: 0, scoreSum: 0, n: 0
+    });
     m.planned += row.planned; m.actual += row.actual;
     m.onTime += row.onTime; m.late += row.late; m.scoreSum += row.score; m.n++;
   });
@@ -150,8 +152,10 @@ function yearlyFrom(rows) {
 function employeesFrom(rows) {
   const map = {};
   rows.forEach((r) => {
-    const e = (map[r.name] ||= { id: r.name, name: r.name, dept: r.dept, active: r.active,
-      planned: 0, actual: 0, onTime: 0, late: 0, pending: 0, scoreSum: 0, n: 0 });
+    const e = (map[r.name] ||= {
+      id: r.name, name: r.name, dept: r.dept, active: r.active,
+      planned: 0, actual: 0, onTime: 0, late: 0, pending: 0, scoreSum: 0, n: 0
+    });
     e.planned += r.planned; e.actual += r.actual; e.onTime += r.onTime;
     e.late += r.late; e.pending += r.pending; e.scoreSum += r.score; e.n++;
     e.active = r.active;
@@ -206,9 +210,9 @@ const fmtDate = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFull
 // Thresholds are computed from the actual data range so colors always spread,
 // whether scores run 0..100, -45..100, or -250..0 (your real sheet values).
 const RAG = {
-  green:  { fg: "#1E8E3E", bg: "rgba(52,168,83,.20)",  label: "Green" },
-  amber:  { fg: "#B06000", bg: "rgba(251,188,4,.24)",  label: "Amber" },
-  red:    { fg: "#C5221F", bg: "rgba(234,67,53,.20)",  label: "Red" },
+  green: { fg: "#1E8E3E", bg: "rgba(52,168,83,.20)", label: "Green" },
+  amber: { fg: "#B06000", bg: "rgba(251,188,4,.24)", label: "Amber" },
+  red: { fg: "#C5221F", bg: "rgba(234,67,53,.20)", label: "Red" },
 };
 // Default thirds for a 0..100 scale; replaced at runtime by setRagRange().
 let RAG_LOW = 33, RAG_HIGH = 66;
@@ -259,32 +263,38 @@ function Sparkline({ data, color }) {
 function KpiCard({ t, icon: Icon, label, value, growth, spark, delay, valueColor, ragLabel }) {
   const up = growth >= 0;
   return (
-    <div style={{
+    <div className="lk-kpi-card" style={{
       background: t.card, border: `1px solid ${t.border}`, borderRadius: 16,
       padding: "18px 20px", display: "flex", flexDirection: "column", gap: 10,
       boxShadow: "0 1px 2px rgba(60,64,67,.06), 0 2px 8px rgba(60,64,67,.04)",
       animation: `rise .55s cubic-bezier(.4,0,.2,1) ${delay}ms both`,
       transition: "transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s cubic-bezier(.4,0,.2,1)", cursor: "default",
     }}
-    onMouseEnter={(e)=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow="0 12px 28px rgba(60,64,67,.14), 0 2px 8px rgba(60,64,67,.06)";}}
-    onMouseLeave={(e)=>{e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="0 1px 2px rgba(60,64,67,.06), 0 2px 8px rgba(60,64,67,.04)";}}>
+      onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 28px rgba(60,64,67,.14), 0 2px 8px rgba(60,64,67,.06)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(60,64,67,.06), 0 2px 8px rgba(60,64,67,.04)"; }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: 12.5, color: t.sub, fontWeight: 500, letterSpacing: ".1px" }}>{label}</span>
-        <div style={{ width: 36, height: 36, borderRadius: 10, display: "grid", placeItems: "center",
-          background: `linear-gradient(135deg, ${t.primary}1F, ${t.primary}10)`, color: t.primary }}>
+        <div style={{
+          width: 36, height: 36, borderRadius: 10, display: "grid", placeItems: "center",
+          background: `linear-gradient(135deg, ${t.primary}1F, ${t.primary}10)`, color: t.primary
+        }}>
           <Icon size={18} />
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 9 }}>
         <div className="lk-kpi-val" style={{ fontSize: "clamp(20px, 5vw, 28px)", fontWeight: 700, color: valueColor || t.text, letterSpacing: "-.8px", lineHeight: 1.05, wordBreak: "break-word", minWidth: 0 }}>{value}</div>
         {ragLabel && (
-          <span style={{ padding: "2px 9px", borderRadius: 20, fontSize: 10.5, fontWeight: 700,
-            background: scoreBg(parseFloat(value)), color: valueColor }}>{ragLabel}</span>
+          <span style={{
+            padding: "2px 9px", borderRadius: 20, fontSize: 10.5, fontWeight: 700,
+            background: scoreBg(parseFloat(value)), color: valueColor
+          }}>{ragLabel}</span>
         )}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 12,
-          fontWeight: 600, color: up ? t.success : t.danger }}>
+        <span style={{
+          display: "flex", alignItems: "center", gap: 3, fontSize: 12,
+          fontWeight: 600, color: up ? t.success : t.danger
+        }}>
           {up ? <TrendingUp size={14} /> : <TrendingDown size={14} />}{Math.abs(growth)}%
         </span>
         <div style={{ flex: 1 }}><Sparkline data={spark} color={up ? t.success : t.danger} /></div>
@@ -295,18 +305,22 @@ function KpiCard({ t, icon: Icon, label, value, growth, spark, delay, valueColor
 
 function Panel({ t, title, action, children, style }) {
   return (
-    <div style={{ background: t.card, border: `1px solid ${t.border}`, borderRadius: 16,
+    <div className="lk-panel" style={{
+      background: t.card, border: `1px solid ${t.border}`, borderRadius: 16,
       boxShadow: "0 1px 2px rgba(60,64,67,.06), 0 2px 8px rgba(60,64,67,.04)",
       overflow: "hidden", animation: "fadeIn .4s ease both",
-      transition: "box-shadow .25s ease", ...style }}>
+      transition: "box-shadow .25s ease", ...style
+    }}>
       {title && (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
-          gap: 12, flexWrap: "wrap", padding: "16px 20px", borderBottom: `1px solid ${t.border}` }}>
+        <div className="lk-panel-head" style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          gap: 12, flexWrap: "wrap", padding: "16px 20px", borderBottom: `1px solid ${t.border}`
+        }}>
           <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: t.text, letterSpacing: "-.2px" }}>{title}</h3>
           {action}
         </div>
       )}
-      <div style={{ padding: 20 }}>{children}</div>
+      <div className="lk-panel-body" style={{ padding: 20 }}>{children}</div>
     </div>
   );
 }
@@ -326,34 +340,43 @@ function MultiSelect({ t, label, options, selected, setSelected }) {
   const filtered = options.filter((o) => o.toLowerCase().includes(q.toLowerCase()));
   const toggle = (o) => setSelected(selected.includes(o) ? selected.filter((x) => x !== o) : [...selected, o]);
   return (
-    <div ref={ref} style={{ position: "relative", minWidth: 170 }}>
+    <div ref={ref} className="lk-multiselect" style={{ position: "relative", minWidth: 170 }}>
       <button onClick={() => setOpen(!open)} style={{
         width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
         gap: 8, padding: "9px 14px", borderRadius: 22, border: `1px solid ${t.border}`,
-        background: t.card, color: t.text, fontSize: 13, cursor: "pointer", fontWeight: 500 }}>
+        background: t.card, color: t.text, fontSize: 13, cursor: "pointer", fontWeight: 500
+      }}>
         <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {label}{selected.length ? ` · ${selected.length}` : ""}
         </span>
         <ChevronDown size={15} style={{ transform: open ? "rotate(180deg)" : "none", transition: ".2s" }} />
       </button>
       {open && (
-        <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 40, width: 240,
+        <div className="lk-multiselect-menu lk-pop" style={{
+          position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 40, width: 240,
           background: t.card, border: `1px solid ${t.border}`, borderRadius: 10,
-          boxShadow: "0 8px 24px rgba(60,64,67,.2)", padding: 8, animation: "rise .15s both" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 8px",
-            background: t.hover, borderRadius: 7, marginBottom: 6 }}>
+          boxShadow: "0 8px 24px rgba(60,64,67,.2)", padding: 8, animation: "rise .15s both"
+        }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 6, padding: "6px 8px",
+            background: t.hover, borderRadius: 7, marginBottom: 6
+          }}>
             <Search size={14} color={t.sub} />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search…"
-              style={{ border: "none", outline: "none", background: "transparent",
-                color: t.text, fontSize: 13, width: "100%" }} />
+              style={{
+                border: "none", outline: "none", background: "transparent",
+                color: t.text, fontSize: 13, width: "100%"
+              }} />
           </div>
           <div style={{ maxHeight: 230, overflowY: "auto" }}>
             {filtered.length > 0 && (
-              <label style={{ display: "flex", alignItems: "center", gap: 9, padding: "7px 8px",
+              <label style={{
+                display: "flex", alignItems: "center", gap: 9, padding: "7px 8px",
                 borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, color: t.primary,
-                borderBottom: `1px solid ${t.border}`, marginBottom: 2 }}
-                onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-                onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
+                borderBottom: `1px solid ${t.border}`, marginBottom: 2
+              }}
+                onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                 <input type="checkbox"
                   checked={filtered.every((o) => selected.includes(o))}
                   ref={(el) => { if (el) el.indeterminate = filtered.some((o) => selected.includes(o)) && !filtered.every((o) => selected.includes(o)); }}
@@ -367,10 +390,12 @@ function MultiSelect({ t, label, options, selected, setSelected }) {
               </label>
             )}
             {filtered.map((o) => (
-              <label key={o} style={{ display: "flex", alignItems: "center", gap: 9, padding: "7px 8px",
-                borderRadius: 6, cursor: "pointer", fontSize: 13, color: t.text }}
-                onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-                onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
+              <label key={o} style={{
+                display: "flex", alignItems: "center", gap: 9, padding: "7px 8px",
+                borderRadius: 6, cursor: "pointer", fontSize: 13, color: t.text
+              }}
+                onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                 <input type="checkbox" checked={selected.includes(o)} onChange={() => toggle(o)}
                   style={{ accentColor: t.primary }} />
                 {o}
@@ -378,9 +403,11 @@ function MultiSelect({ t, label, options, selected, setSelected }) {
             ))}
           </div>
           {selected.length > 0 && (
-            <button onClick={() => setSelected([])} style={{ width: "100%", marginTop: 6,
+            <button onClick={() => setSelected([])} style={{
+              width: "100%", marginTop: 6,
               padding: "7px", border: "none", borderRadius: 6, background: `${t.danger}14`,
-              color: t.danger, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
+              color: t.danger, fontSize: 12.5, fontWeight: 600, cursor: "pointer"
+            }}>
               Clear
             </button>
           )}
@@ -404,7 +431,7 @@ function Calendar({ t, view, setView, value, onPick, rangeStart, rangeEnd }) {
   const sameDay = (a, b) => a && b && a.toDateString() === b.toDateString();
   const inRange = (d) => rangeStart && rangeEnd && d >= rangeStart && d <= rangeEnd;
   return (
-    <div style={{ minWidth: 188 }}>
+    <div className="lk-calendar" style={{ minWidth: 188 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
         <button onClick={() => setView(new Date(y, mo - 1, 1))} style={navBtn(t)}><ChevronLeft size={14} /></button>
         <span style={{ fontSize: 12, fontWeight: 600 }}>
@@ -413,7 +440,7 @@ function Calendar({ t, view, setView, value, onPick, rangeStart, rangeEnd }) {
         <button onClick={() => setView(new Date(y, mo + 1, 1))} style={navBtn(t)}><ChevronRight size={14} /></button>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 1 }}>
-        {["M","T","W","T","F","S","S"].map((d, i) => (
+        {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
           <div key={i} style={{ textAlign: "center", fontSize: 9.5, color: t.sub, fontWeight: 600, padding: "1px 0" }}>{d}</div>
         ))}
         {cells.map((d, i) => {
@@ -424,7 +451,8 @@ function Calendar({ t, view, setView, value, onPick, rangeStart, rangeEnd }) {
             <button key={i} onClick={() => onPick(d)} style={{
               border: "none", cursor: "pointer", padding: "4px 0", fontSize: 11, borderRadius: 6,
               background: sel ? t.primary : within ? `${t.primary}22` : "transparent",
-              color: sel ? "#fff" : t.text, fontWeight: sel ? 600 : 400, transition: ".12s" }}
+              color: sel ? "#fff" : t.text, fontWeight: sel ? 600 : 400, transition: ".12s"
+            }}
               onMouseEnter={(e) => { if (!sel) e.currentTarget.style.background = t.hover; }}
               onMouseLeave={(e) => { if (!sel) e.currentTarget.style.background = within ? `${t.primary}22` : "transparent"; }}>
               {d.getDate()}
@@ -435,8 +463,10 @@ function Calendar({ t, view, setView, value, onPick, rangeStart, rangeEnd }) {
     </div>
   );
 }
-const navBtn = (t) => ({ border: "none", background: "transparent", color: t.text,
-  cursor: "pointer", display: "grid", placeItems: "center", width: 26, height: 26, borderRadius: 6 });
+const navBtn = (t) => ({
+  border: "none", background: "transparent", color: t.text,
+  cursor: "pointer", display: "grid", placeItems: "center", width: 26, height: 26, borderRadius: 6
+});
 
 function DateRangePicker({ t, range, setRange, min, max }) {
   const [open, setOpen] = useState(false);
@@ -486,9 +516,9 @@ function DateRangePicker({ t, range, setRange, min, max }) {
   const sameDay2 = (a, b) => a && b && a.toDateString() === b.toDateString();
   const matchedPreset = (range.start && range.end)
     ? (presets.find(([, fn]) => {
-        const [s, e] = fn();
-        return sameDay2(s, range.start) && sameDay2(e, range.end);
-      }) || [])[0]
+      const [s, e] = fn();
+      return sameDay2(s, range.start) && sameDay2(e, range.end);
+    }) || [])[0]
     : null;
 
   const label = range.start && range.end
@@ -511,31 +541,38 @@ function DateRangePicker({ t, range, setRange, min, max }) {
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div ref={ref} style={{ position: "relative" }}>
-      <button onClick={() => setOpen(!open)} style={{
+    <div ref={ref} className="lk-date-picker" style={{ position: "relative" }}>
+      <button className="lk-date-button" onClick={() => setOpen(!open)} style={{
         display: "flex", alignItems: "center", gap: 8, padding: "9px 14px", borderRadius: 22,
         border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 13,
-        fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap" }}>
+        fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap"
+      }}>
         <CalendarRange size={15} color={t.sub} /> {label}
         <ChevronDown size={15} style={{ transform: open ? "rotate(180deg)" : "none", transition: ".2s" }} />
       </button>
       {open && (
-        <div className="lk-daterange-pop" style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 70,
+        <div className="lk-daterange-pop" style={{
+          position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 70,
           background: t.card, border: `1px solid ${t.border}`, borderRadius: 12,
           boxShadow: "0 12px 40px rgba(60,64,67,.25)", padding: 12, animation: "rise .15s both",
-          display: "flex", gap: 12, flexWrap: "nowrap", alignItems: "flex-start" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 108,
-            borderRight: `1px solid ${t.border}`, paddingRight: 10 }}>
+          display: "flex", gap: 12, flexWrap: "nowrap", alignItems: "flex-start"
+        }}>
+          <div style={{
+            display: "flex", flexDirection: "column", gap: 2, minWidth: 108,
+            borderRight: `1px solid ${t.border}`, paddingRight: 10
+          }}>
             {presets.map(([n, fn]) => (
               <button key={n} onClick={() => { const [s, e] = fn(); setStart(s); setEnd(e); setVStart(s); setVEnd(e); }}
-                style={{ textAlign: "left", border: "none", background: "transparent", color: t.text,
-                  fontSize: 11.5, padding: "5px 8px", borderRadius: 6, cursor: "pointer" }}
+                style={{
+                  textAlign: "left", border: "none", background: "transparent", color: t.text,
+                  fontSize: 11.5, padding: "5px 8px", borderRadius: 6, cursor: "pointer"
+                }}
                 onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                 onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>{n}</button>
             ))}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            <div className="lk-calendar-pair" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
               <div>
                 <div style={{ textAlign: "center", fontSize: 10.5, fontWeight: 600, color: t.sub, marginBottom: 5 }}>Start date</div>
                 <Calendar t={t} view={vStart} setView={setVStart} value={start}
@@ -549,12 +586,16 @@ function DateRangePicker({ t, range, setRange, min, max }) {
                   onPick={(d) => { if (start && d < start) setStart(d); setEnd(d); }} />
               </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14 }}>
-              <button onClick={clear} style={{ border: "none", background: "transparent", color: t.sub,
-                fontSize: 13, fontWeight: 600, cursor: "pointer", padding: "8px 14px" }}>Clear</button>
-              <button onClick={apply} disabled={!start || !end} style={{ border: "none", borderRadius: 20,
+            <div className="lk-date-actions" style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14 }}>
+              <button onClick={clear} style={{
+                border: "none", background: "transparent", color: t.sub,
+                fontSize: 13, fontWeight: 600, cursor: "pointer", padding: "8px 14px"
+              }}>Clear</button>
+              <button onClick={apply} disabled={!start || !end} style={{
+                border: "none", borderRadius: 20,
                 background: (!start || !end) ? t.track : t.primary, color: "#fff", fontSize: 13,
-                fontWeight: 600, cursor: (!start || !end) ? "not-allowed" : "pointer", padding: "8px 20px" }}>Apply</button>
+                fontWeight: 600, cursor: (!start || !end) ? "not-allowed" : "pointer", padding: "8px 20px"
+              }}>Apply</button>
             </div>
           </div>
         </div>
@@ -651,36 +692,51 @@ function LoginPage({ onLogin }) {
   const strengthColor = ["#EA4335", "#EA4335", "#FBBC04", "#34A853", "#1E8E3E"][strength];
 
   return (
-    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center",
+    <div className="lk-login-page" style={{
+      minHeight: "100vh", display: "grid", placeItems: "center",
       fontFamily: "'Inter','Google Sans','Segoe UI',Roboto,system-ui,sans-serif",
       background: "radial-gradient(1200px 600px at 50% -10%, #E8F0FE 0%, #F5F6F8 45%, #E6F4EA 100%)",
-      padding: 20, WebkitFontSmoothing: "antialiased" }}>
+      padding: 20, WebkitFontSmoothing: "antialiased"
+    }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
         @keyframes spin{to{transform:rotate(360deg)}}
         .lk-login input{transition:border-color .2s, box-shadow .2s}
         .lk-login input:focus{outline:none;border-color:#1A73E8!important;box-shadow:0 0 0 3px rgba(26,115,232,.2)!important}
         .lk-login button{transition:transform .12s, background .2s, box-shadow .2s}
-        .lk-login button:active{transform:scale(.98)}`}</style>
+        .lk-login button:active{transform:scale(.98)}
+        @media(max-width:520px){
+          .lk-login-page{min-height:100dvh!important;padding:12px!important;place-items:start center!important;overflow-y:auto}
+          .lk-login{max-width:none!important;border-radius:16px!important;padding:24px 18px!important;margin:auto 0!important}
+          .lk-login input{font-size:16px!important}
+          .lk-login button{min-height:44px}
+        }
+        @media(max-width:360px){.lk-login{padding:20px 14px!important}}`}</style>
 
       {toast && (
-        <div style={{ position: "fixed", top: 22, left: "50%", transform: "translateX(-50%)",
+        <div style={{
+          position: "fixed", top: 22, left: "50%", transform: "translateX(-50%)",
           background: "#1E8E3E", color: "#fff", padding: "12px 20px", borderRadius: 10,
           boxShadow: "0 8px 24px rgba(30,142,62,.35)", fontSize: 13.5, fontWeight: 500, zIndex: 100,
-          display: "flex", alignItems: "center", gap: 9, animation: "rise .3s both" }}>
+          display: "flex", alignItems: "center", gap: 9, animation: "rise .3s both"
+        }}>
           <Check size={17} /> {toast}
         </div>
       )}
 
-      <div className="lk-login" style={{ width: "100%", maxWidth: 420, background: "#fff", borderRadius: 20,
+      <div className="lk-login" style={{
+        width: "100%", maxWidth: 420, background: "#fff", borderRadius: 20,
         border: `1px solid ${t.border}`, boxShadow: "0 24px 60px rgba(60,64,67,.16), 0 4px 16px rgba(60,64,67,.08)",
-        padding: "36px 34px", animation: "rise .45s cubic-bezier(.4,0,.2,1) both" }}>
+        padding: "36px 34px", animation: "rise .45s cubic-bezier(.4,0,.2,1) both"
+      }}>
         <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 6 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 9, background: t.primary,
-            display: "grid", placeItems: "center" }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: 9, background: t.primary,
+            display: "grid", placeItems: "center"
+          }}>
             <LayoutDashboard size={21} color="#fff" />
           </div>
-          <div style={{ fontWeight: 700, fontSize: 19, color: t.text, letterSpacing: "-.4px" }}>Looker Studio</div>
+         <div style={{ fontWeight: 700, fontSize: 19, color: t.text, letterSpacing: "-.4px" }}>Bhaskar Employee Score</div>
         </div>
         <p style={{ margin: "0 0 20px", color: t.sub, fontSize: 13.5 }}>
           {mode === "login" ? "Welcome back — sign in to continue" : "Create your account"}
@@ -689,18 +745,22 @@ function LoginPage({ onLogin }) {
         {/* Mode toggle */}
         <div style={{ display: "flex", background: "#F1F3F4", borderRadius: 10, padding: 4, marginBottom: 20 }}>
           {["login", "signup"].map((m) => (
-            <button key={m} onClick={() => { setMode(m); setErr(""); }} style={{ flex: 1, padding: "8px",
+            <button key={m} onClick={() => { setMode(m); setErr(""); }} style={{
+              flex: 1, padding: "8px",
               border: "none", borderRadius: 7, cursor: "pointer", fontSize: 13.5, fontWeight: 600,
               background: mode === m ? "#fff" : "transparent", color: mode === m ? t.primary : t.sub,
-              boxShadow: mode === m ? "0 1px 3px rgba(60,64,67,.18)" : "none", transition: ".15s" }}>
+              boxShadow: mode === m ? "0 1px 3px rgba(60,64,67,.18)" : "none", transition: ".15s"
+            }}>
               {m === "login" ? "Sign In" : "Sign Up"}
             </button>
           ))}
         </div>
 
         {err && (
-          <div style={{ background: `${t.danger}14`, color: t.danger, fontSize: 12.5,
-            padding: "9px 12px", borderRadius: 8, marginBottom: 14 }}>{err}</div>
+          <div style={{
+            background: `${t.danger}14`, color: t.danger, fontSize: 12.5,
+            padding: "9px 12px", borderRadius: 8, marginBottom: 14
+          }}>{err}</div>
         )}
 
         {mode === "login" ? (
@@ -718,8 +778,10 @@ function LoginPage({ onLogin }) {
                 onChange={(e) => setLoginPw(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && doLogin()}
                 placeholder="••••••••" style={field} />
-              <button onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: 11,
-                border: "none", background: "transparent", cursor: "pointer", color: t.sub }}>
+              <button onClick={() => setShowPw(!showPw)} style={{
+                position: "absolute", right: 12, top: 11,
+                border: "none", background: "transparent", cursor: "pointer", color: t.sub
+              }}>
                 {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
@@ -729,16 +791,22 @@ function LoginPage({ onLogin }) {
                   style={{ accentColor: t.primary }} /> Remember me
               </label>
               <button onClick={() => { setToast("Password reset link would be emailed (forgotPassword API)."); setTimeout(() => setToast(""), 3500); }}
-                style={{ border: "none", background: "transparent", color: t.primary, fontSize: 12.5,
-                  fontWeight: 600, cursor: "pointer" }}>Forgot password?</button>
+                style={{
+                  border: "none", background: "transparent", color: t.primary, fontSize: 12.5,
+                  fontWeight: 600, cursor: "pointer"
+                }}>Forgot password?</button>
             </div>
 
-            <button onClick={doLogin} disabled={busy} style={{ width: "100%", marginTop: 10, padding: "13px",
+            <button onClick={doLogin} disabled={busy} style={{
+              width: "100%", marginTop: 10, padding: "13px",
               border: "none", borderRadius: 10, background: t.primary, color: "#fff", fontSize: 14.5,
               fontWeight: 600, cursor: busy ? "wait" : "pointer", display: "flex", justifyContent: "center",
-              alignItems: "center", gap: 9 }}>
-              {busy && <span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,.4)",
-                borderTopColor: "#fff", borderRadius: "50%", animation: "spin .7s linear infinite" }} />}
+              alignItems: "center", gap: 9
+            }}>
+              {busy && <span style={{
+                width: 16, height: 16, border: "2px solid rgba(255,255,255,.4)",
+                borderTopColor: "#fff", borderRadius: "50%", animation: "spin .7s linear infinite"
+              }} />}
               {busy ? "Signing in…" : "Sign in"}
             </button>
 
@@ -748,11 +816,13 @@ function LoginPage({ onLogin }) {
               setBusy(false);
               if (r.ok) onLogin(r.user);
               else setErr("Default admin login failed. Check the backend is running.");
-            }} style={{ width: "100%", marginTop: 10, padding: "12px",
+            }} style={{
+              width: "100%", marginTop: 10, padding: "12px",
               borderRadius: 10, border: `1px solid ${t.border}`, background: "#fff", color: t.text,
               fontSize: 14, fontWeight: 500, cursor: "pointer", display: "flex", justifyContent: "center",
-              alignItems: "center", gap: 9 }}>
-              <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6.1C12.2 13.4 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.8-9.9 6.8-17.4z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.6 0 20.2 0 24s1 7.4 2.6 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.3-5.7c-2 1.4-4.7 2.3-7.9 2.3-6.4 0-11.8-3.9-13.6-9.8l-7.8 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+              alignItems: "center", gap: 9
+            }}>
+              <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6.1C12.2 13.4 17.6 9.5 24 9.5z" /><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.8-9.9 6.8-17.4z" /><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C1 16.6 0 20.2 0 24s1 7.4 2.6 10.8l7.8-6.1z" /><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.3-5.7c-2 1.4-4.7 2.3-7.9 2.3-6.4 0-11.8-3.9-13.6-9.8l-7.8 6.1C6.5 42.6 14.6 48 24 48z" /></svg>
               Quick login as admin
             </button>
           </>
@@ -780,8 +850,10 @@ function LoginPage({ onLogin }) {
               <Lock size={17} color={t.sub} style={{ position: "absolute", left: 14, top: 13 }} />
               <input value={su.password} type={showPw ? "text" : "password"}
                 onChange={(e) => setF("password", e.target.value)} placeholder="••••••••" style={field} />
-              <button onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 12, top: 11,
-                border: "none", background: "transparent", cursor: "pointer", color: t.sub }}>
+              <button onClick={() => setShowPw(!showPw)} style={{
+                position: "absolute", right: 12, top: 11,
+                border: "none", background: "transparent", cursor: "pointer", color: t.sub
+              }}>
                 {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
@@ -789,8 +861,10 @@ function LoginPage({ onLogin }) {
               <div style={{ margin: "0 0 12px" }}>
                 <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
                   {[0, 1, 2, 3].map((i) => (
-                    <div key={i} style={{ flex: 1, height: 4, borderRadius: 4,
-                      background: i < strength ? strengthColor : "#E8EAED" }} />
+                    <div key={i} style={{
+                      flex: 1, height: 4, borderRadius: 4,
+                      background: i < strength ? strengthColor : "#E8EAED"
+                    }} />
                   ))}
                 </div>
                 <span style={{ fontSize: 11, color: strengthColor, fontWeight: 600 }}>{strengthLabel}</span>
@@ -803,23 +877,31 @@ function LoginPage({ onLogin }) {
             </LoginWrap>
 
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={doSignup} disabled={busy} style={{ flex: 2, padding: "13px", border: "none",
+              <button onClick={doSignup} disabled={busy} style={{
+                flex: 2, padding: "13px", border: "none",
                 borderRadius: 10, background: t.primary, color: "#fff", fontSize: 14.5, fontWeight: 600,
-                cursor: busy ? "wait" : "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: 9 }}>
-                {busy && <span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,.4)",
-                  borderTopColor: "#fff", borderRadius: "50%", animation: "spin .7s linear infinite" }} />}
+                cursor: busy ? "wait" : "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: 9
+              }}>
+                {busy && <span style={{
+                  width: 16, height: 16, border: "2px solid rgba(255,255,255,.4)",
+                  borderTopColor: "#fff", borderRadius: "50%", animation: "spin .7s linear infinite"
+                }} />}
                 {busy ? "Creating…" : "Register"}
               </button>
               <button onClick={() => setSu({ fullName: "", email: "", mobile: "", username: "", password: "", confirm: "" })}
-                style={{ flex: 1, padding: "13px", borderRadius: 10, border: `1px solid ${t.border}`,
-                  background: "#fff", color: t.text, fontSize: 14, fontWeight: 500, cursor: "pointer" }}>
+                style={{
+                  flex: 1, padding: "13px", borderRadius: 10, border: `1px solid ${t.border}`,
+                  background: "#fff", color: t.text, fontSize: 14, fontWeight: 500, cursor: "pointer"
+                }}>
                 Reset
               </button>
             </div>
             <p style={{ textAlign: "center", fontSize: 12.5, color: t.sub, marginTop: 16 }}>
               Already have an account?{" "}
-              <button onClick={() => { setMode("login"); setErr(""); }} style={{ border: "none",
-                background: "transparent", color: t.primary, fontWeight: 600, cursor: "pointer" }}>Sign in</button>
+              <button onClick={() => { setMode("login"); setErr(""); }} style={{
+                border: "none",
+                background: "transparent", color: t.primary, fontWeight: 600, cursor: "pointer"
+              }}>Sign in</button>
             </p>
           </>
         )}
@@ -833,6 +915,17 @@ function LoginPage({ onLogin }) {
 ----------------------------------------------------------------- */
 export default function App() {
   const [user, setUser] = useState(null);
+
+  // Ensure proper mobile scaling even if index.html is missing the viewport tag.
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "viewport";
+      document.head.appendChild(meta);
+    }
+    meta.content = "width=device-width, initial-scale=1, viewport-fit=cover";
+  }, []);
   const [dark, setDark] = useState(false);
   const t = dark ? TOKENS.dark : TOKENS.light;
   const [tab, setTab] = useState("dept");
@@ -858,7 +951,7 @@ export default function App() {
     const rawStatus = String(o.active || "").trim();
     const lc = rawStatus.toLowerCase();
     let status;
-    if (lc === "" ) status = "Blank";
+    if (lc === "") status = "Blank";
     else if (lc.includes("n/a") || lc === "#n/a") status = "#N/A";
     else if (lc.includes("inactive") || lc.includes("not")) status = "Inactive";
     else if (lc.includes("active")) status = "Active";
@@ -984,6 +1077,7 @@ export default function App() {
   const [selMonth, setSelMonth] = useState(null);
   const [selYear, setSelYear] = useState(null);
   const [scoringView, setScoringView] = useState("doer"); // Monthly tab dropdown
+  const [scoreSort, setScoreSort] = useState({ key: "yearly", dir: "desc" }); // Score Summary column sort
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminBusy, setAdminBusy] = useState(false);
   const [adminMsg, setAdminMsg] = useState("");
@@ -1008,8 +1102,10 @@ export default function App() {
     if (!f.fullName.trim() || !f.username.trim()) { setAdminMsg("Full name and username are required"); return; }
     setAdminBusy(true);
     const action = f._edit ? "updateUser" : "createUser";
-    const payload = { fullName: f.fullName.trim(), email: f.email.trim(), mobile: f.mobile.trim(),
-      username: f.username.trim(), role: f.role, status: f.status };
+    const payload = {
+      fullName: f.fullName.trim(), email: f.email.trim(), mobile: f.mobile.trim(),
+      username: f.username.trim(), role: f.role, status: f.status
+    };
     if (f.password) payload.password = f.password;
     const r = await api(action, payload);
     if (r.ok) { setAdminMsg(f._edit ? `${f.username} updated` : `${f.username} created`); setAdminForm(null); loadUsers(); }
@@ -1048,8 +1144,10 @@ export default function App() {
   const empAgg = useMemo(() => {
     const map = {};
     filtered.forEach((r) => {
-      const e = (map[r.name] ||= { id: r.name, name: r.name, dept: r.dept, active: r.active,
-        planned: 0, actual: 0, onTime: 0, late: 0, pending: 0, scoreSum: 0, n: 0 });
+      const e = (map[r.name] ||= {
+        id: r.name, name: r.name, dept: r.dept, active: r.active,
+        planned: 0, actual: 0, onTime: 0, late: 0, pending: 0, scoreSum: 0, n: 0
+      });
       e.planned += r.planned; e.actual += r.actual; e.onTime += r.onTime;
       e.late += r.late; e.pending += r.pending; e.scoreSum += r.score; e.n++;
       e.active = r.active;
@@ -1123,8 +1221,10 @@ export default function App() {
       g.late += r.late; g.pending += r.pending; g.scoreSum += r.score; g.n++;
     });
     return Object.values(map)
-      .map((g) => ({ ...g, score: calcScore(g.planned, g.onTime, g.late),
-        completion: g.planned ? +((g.actual / g.planned) * 100).toFixed(1) : 0 }))
+      .map((g) => ({
+        ...g, score: calcScore(g.planned, g.onTime, g.late),
+        completion: g.planned ? +((g.actual / g.planned) * 100).toFixed(1) : 0
+      }))
       .sort((a, b) => b.score - a.score);
   }, [filtered, scoringView]);
 
@@ -1166,6 +1266,22 @@ export default function App() {
     });
     return result.sort((a, b) => (b.yearly ?? -Infinity) - (a.yearly ?? -Infinity));
   }, [filtered]);
+  
+
+// Sort Score Summary by the clicked column (name / dept / weekly / monthly / yearly).
+  const scoreSummarySorted = useMemo(() => {
+    const { key, dir } = scoreSort;
+    const arr = [...scoreSummary];
+    arr.sort((a, b) => {
+      let av = a[key], bv = b[key];
+      if (key === "name" || key === "dept") {
+        return dir === "asc" ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
+      }
+      av = av ?? -Infinity; bv = bv ?? -Infinity;
+      return dir === "asc" ? av - bv : bv - av;
+    });
+    return arr;
+  }, [scoreSummary, scoreSort]);
 
   // KPIs
   const kpis = useMemo(() => {
@@ -1227,21 +1343,31 @@ export default function App() {
 
   const notifications = useMemo(() => {
     const list = [];
-    list.push({ icon: Activity, color: t.primary,
-      text: `${fmt(rows.length)} records loaded from MongoDB`, time: "just now" });
+    list.push({
+      icon: Activity, color: t.primary,
+      text: `${fmt(rows.length)} records loaded from MongoDB`, time: "just now"
+    });
     if (kpis.pending > 0)
-      list.push({ icon: Clock, color: t.warning,
-        text: `${fmt(kpis.pending)} pending activities across ${kpis.total} employees`, time: "live" });
+      list.push({
+        icon: Clock, color: t.warning,
+        text: `${fmt(kpis.pending)} pending activities across ${kpis.total} employees`, time: "live"
+      });
     const lowPerformers = empAgg.filter((e) => e.score < RAG_LOW).length;
     if (lowPerformers > 0)
-      list.push({ icon: TrendingDown, color: t.danger,
-        text: `Low score alert: ${lowPerformers} employees in the red band`, time: "live" });
+      list.push({
+        icon: TrendingDown, color: t.danger,
+        text: `Low score alert: ${lowPerformers} employees in the red band`, time: "live"
+      });
     if (kpis.inactive > 0)
-      list.push({ icon: UserX, color: t.sub,
-        text: `${fmt(kpis.inactive)} inactive employees detected`, time: "live" });
+      list.push({
+        icon: UserX, color: t.sub,
+        text: `${fmt(kpis.inactive)} inactive employees detected`, time: "live"
+      });
     if (top10[0])
-      list.push({ icon: Trophy, color: t.success,
-        text: `Top performer: ${top10[0].name} (${top10[0].dept}) · score ${top10[0].score}`, time: "live" });
+      list.push({
+        icon: Trophy, color: t.success,
+        text: `Top performer: ${top10[0].name} (${top10[0].dept}) · score ${top10[0].score}`, time: "live"
+      });
     return list;
   }, [rows.length, kpis, empAgg, top10, t]);
 
@@ -1260,38 +1386,38 @@ export default function App() {
       case "dept":
         return {
           title: "Department Performance Report",
-          cols: ["Rank","Department","Records","Avg Score","Pending","Completion %","On-Time %","Late %"],
+          cols: ["Rank", "Department", "Records", "Avg Score", "Pending", "Completion %", "On-Time %", "Late %"],
           rows: deptAgg.map((d, i) => [i + 1, d.dept, d.count, d.avg, d.pending, d.completion + "%", d.onTimePct + "%", d.latePct + "%"]),
         };
       case "monthly":
         return {
           title: "Monthly Analytics Report",
-          cols: ["Month","Score","Activities Done","Completion %"],
+          cols: ["Month", "Score", "Activities Done", "Completion %"],
           rows: MONTHLY.map((m) => [m.month, m.score, m.activities, m.completion + "%"]),
         };
       case "yearly":
         return {
           title: "Yearly Analytics Report",
-          cols: ["Year","Score","Productivity %","Activities Done"],
+          cols: ["Year", "Score", "Productivity %", "Activities Done"],
           rows: YEARLY.map((y) => [y.year, y.score, y.productivity + "%", y.activities]),
         };
       case "scores":
         return {
           title: "Score Summary Report",
-          cols: ["Rank","Name","Weekly Score","Monthly Score","Yearly Score"],
+          cols: ["Rank", "Name", "Weekly Score", "Monthly Score", "Yearly Score"],
           rows: scoreSummary.map((p, i) => [i + 1, p.name, p.weekly ?? "—", p.monthly ?? "—", p.yearly ?? "—"]),
         };
       case "board":
         return {
           title: "Leaderboard Report",
-          cols: ["Rank","Name","Department","Score"],
+          cols: ["Rank", "Name", "Department", "Score"],
           rows: [...ranked].map((r, i) => [i + 1, r.name, r.dept, r.score]),
         };
       case "emp":
       default:
         return {
           title: "Employee Performance Report",
-          cols: ["Rank","Name","Department","Score","Planned","Actual","OnTime","Late","Pending","Status"],
+          cols: ["Rank", "Name", "Department", "Score", "Planned", "Actual", "OnTime", "Late", "Pending", "Status"],
           rows: sorted.map((r, i) => [i + 1, r.name, r.dept, r.score, r.planned, r.actual, r.onTime, r.late, r.pending, r.active]),
         };
     }
@@ -1352,9 +1478,11 @@ export default function App() {
 
   const Th = ({ k, children, align = "left" }) => (
     <th onClick={() => k && setSort({ key: k, dir: sort.key === k && sort.dir === "desc" ? "asc" : "desc" })}
-      style={{ padding: "11px 12px", textAlign: align, fontSize: 12, fontWeight: 600, color: t.sub,
+      style={{
+        padding: "11px 12px", textAlign: align, fontSize: 12, fontWeight: 600, color: t.sub,
         cursor: k ? "pointer" : "default", userSelect: "none", position: "sticky", top: 0,
-        background: t.hover, whiteSpace: "nowrap" }}>
+        background: t.hover, whiteSpace: "nowrap"
+      }}>
       <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
         {children}
         {k && (sort.key === k
@@ -1377,13 +1505,17 @@ export default function App() {
   if (!user) return <LoginPage onLogin={setUser} />;
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center",
-      fontFamily: "'Inter',sans-serif", background: t.bg }}>
+    <div style={{
+      minHeight: "100vh", display: "grid", placeItems: "center",
+      fontFamily: "'Inter',sans-serif", background: t.bg
+    }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ width: 40, height: 40, border: `3px solid ${t.border}`,
+        <div style={{
+          width: 40, height: 40, border: `3px solid ${t.border}`,
           borderTopColor: t.primary, borderRadius: "50%", animation: "spin .7s linear infinite",
-          margin: "0 auto 16px" }} />
-        <div style={{ color: t.text, fontWeight: 600, fontSize: 16 }}>Loading data from MongoDB…</div>
+          margin: "0 auto 16px"
+        }} />
+        <div style={{ color: t.text, fontWeight: 600, fontSize: 16 }}>Loading data from Database…</div>
         <div style={{ color: t.sub, fontSize: 13, marginTop: 6 }}>This may take a few seconds for large datasets</div>
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -1395,10 +1527,12 @@ export default function App() {
     <div className="lk-scroll" style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
         <thead><tr>
-          {["Rank","Employee","Department","Score","Planned","Actual","On-Time","Late","Pending","Status"].map((h, i) => (
-            <th key={h} style={{ padding: "11px 12px", textAlign: i >= 3 && i <= 8 ? "right" : "left",
+          {["Rank", "Employee", "Department", "Score", "Planned", "Actual", "On-Time", "Late", "Pending", "Status"].map((h, i) => (
+            <th key={h} style={{
+              padding: "11px 12px", textAlign: i >= 3 && i <= 8 ? "right" : "left",
               fontSize: 12, fontWeight: 600, color: t.sub, position: "sticky", top: 0,
-              background: t.hover, whiteSpace: "nowrap" }}>{h}</th>
+              background: t.hover, whiteSpace: "nowrap"
+            }}>{h}</th>
           ))}
         </tr></thead>
         <tbody>
@@ -1407,22 +1541,26 @@ export default function App() {
           )}
           {list.map((r, i) => (
             <tr key={r.id} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
-              onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-              onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
+              onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
               <td style={{ padding: "11px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
               <td style={{ padding: "11px 12px", fontWeight: 600 }}>{r.name}</td>
               <td style={{ padding: "11px 12px", color: t.sub }}>{r.dept}</td>
-              <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
-                background: scoreBg(r.score), color: scoreColor(r.score) }}>{r.score}</td>
+              <td style={{
+                padding: "11px 12px", textAlign: "right", fontWeight: 600,
+                background: scoreBg(r.score), color: scoreColor(r.score)
+              }}>{r.score}</td>
               <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(r.planned)}</td>
               <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(r.actual)}</td>
               <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(r.onTime)}</td>
               <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(r.late)}</td>
-              <td style={{ padding: "11px 12px", textAlign: "right", background: pendingBg(r.pending, Math.max(...list.map(x=>x.pending), 1)) }}>{fmt(r.pending)}</td>
+              <td style={{ padding: "11px 12px", textAlign: "right", background: pendingBg(r.pending, Math.max(...list.map(x => x.pending), 1)) }}>{fmt(r.pending)}</td>
               <td style={{ padding: "11px 12px" }}>
-                <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 11.5, fontWeight: 600,
+                <span style={{
+                  padding: "3px 9px", borderRadius: 20, fontSize: 11.5, fontWeight: 600,
                   background: r.active === "Active" ? `${t.success}22` : `${t.sub}22`,
-                  color: r.active === "Active" ? t.success : t.sub }}>{r.active}</span>
+                  color: r.active === "Active" ? t.success : t.sub
+                }}>{r.active}</span>
               </td>
             </tr>
           ))}
@@ -1433,27 +1571,31 @@ export default function App() {
 
   // Pill-style period selector buttons.
   const periodPicker = (options, activeKey, onPick, labelOf, keyOf) => (
-    <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+    <div className="lk-period-picker" style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
       {options.map((o) => {
         const k = keyOf(o), on = String(k) === String(activeKey);
         return (
-          <button key={k} onClick={() => onPick(k)} style={{ padding: "6px 13px", borderRadius: 20,
+          <button key={k} onClick={() => onPick(k)} style={{
+            padding: "6px 13px", borderRadius: 20,
             border: `1px solid ${on ? t.primary : t.border}`, cursor: "pointer", fontSize: 12.5,
             fontWeight: on ? 600 : 500, background: on ? `${t.primary}14` : t.card,
-            color: on ? t.primary : t.text, whiteSpace: "nowrap" }}>{labelOf(o)}</button>
+            color: on ? t.primary : t.text, whiteSpace: "nowrap"
+          }}>{labelOf(o)}</button>
         );
       })}
     </div>
   );
 
   return (
-    <div style={{ minHeight: "100vh", width: "100%", maxWidth: "100vw", overflowX: "hidden",
+    <div style={{
+      minHeight: "100vh", width: "100%", maxWidth: "100vw", overflowX: "hidden",
       background: dark
         ? "radial-gradient(1200px 700px at 80% -5%, rgba(138,180,248,.06), transparent 60%), " + t.bg
         : "radial-gradient(1200px 700px at 80% -5%, rgba(26,115,232,.05), transparent 60%), " + t.bg,
       color: t.text,
       fontFamily: "'Inter','Google Sans','Segoe UI',Roboto,system-ui,sans-serif",
-      transition: "background .35s cubic-bezier(.4,0,.2,1)", WebkitFontSmoothing: "antialiased" }}>
+      transition: "background .35s cubic-bezier(.4,0,.2,1)", WebkitFontSmoothing: "antialiased"
+    }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -1477,7 +1619,8 @@ export default function App() {
         .lk-scroll::-webkit-scrollbar-track{background:transparent}
         .lk-scroll::-webkit-scrollbar-thumb{background:${t.border};border-radius:10px;border:2px solid transparent;background-clip:padding-box}
         .lk-scroll::-webkit-scrollbar-thumb:hover{background:${t.primary}}
-        .lk-scroll thead th{position:sticky;top:0;z-index:2;backdrop-filter:blur(6px)}
+      .lk-scroll thead th{position:sticky;top:0;z-index:2;backdrop-filter:blur(6px)}
+        @media(max-width:860px){.lk-scroll thead th{top:58px!important;z-index:20!important}}
         .lk-row{transition:background .15s ease}
         /* UI upgrade: subtle table zebra + crisper hover */
         .lk-scroll tbody tr:nth-child(even){background:${dark ? "rgba(255,255,255,.015)" : "rgba(60,64,67,.012)"}}
@@ -1488,39 +1631,114 @@ export default function App() {
         /* UI upgrade: popovers animate in */
         .lk-daterange-pop,.lk-pop{animation:popIn .18s cubic-bezier(.4,0,.2,1) both}
         .lk-mobtog{display:none}
+        .lk-header-actions{min-width:0}
+        .lk-panel,.lk-kpi-card,.lk-chart-grid,.lk-ai-grid{min-width:0}
+        .lk-panel-body{min-width:0}
+        .lk-scroll{max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain}
+        .lk-scroll table{min-width:max-content}
+        .lk-chart-grid > *, .lk-ai-grid > *{min-width:0}
+        .lk-period-picker{max-width:100%;overflow-x:auto;flex-wrap:nowrap!important;padding-bottom:3px;scrollbar-width:none}
+        .lk-period-picker::-webkit-scrollbar{display:none}
         /* NEW: table density toggle */
         .lk-density-compact table td, .lk-density-compact table th{padding-top:5px!important;padding-bottom:5px!important;font-size:12px!important}
         .lk-density-compact .lk-row td{padding-top:5px!important;padding-bottom:5px!important}
-        @media(max-width:860px){.lk-sidebar{position:fixed!important;z-index:60;height:100%;transform:translateX(-110%);transition:transform .32s cubic-bezier(.4,0,.2,1)}.lk-sidebar.open{transform:none!important}.lk-maincol{margin-left:0!important}.lk-header{left:0!important}.lk-desk{display:none!important}.lk-mobtog{display:block!important}}
+
+        /* Sidebar becomes an off-canvas drawer on tablet/mobile. */
+  @media(max-width:860px){
+          .lk-sidebar{position:fixed!important;z-index:60!important;height:100dvh!important;width:min(280px,86vw)!important;transform:translateX(-110%);transition:transform .32s cubic-bezier(.4,0,.2,1);box-shadow:0 18px 50px rgba(0,0,0,.28)}
+          .lk-sidebar.open{transform:none!important}
+          .lk-maincol{margin-left:0!important;padding-top:58px!important;width:100%!important}
+          .lk-header{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100%!important;min-height:58px;flex-wrap:wrap!important;z-index:50!important}
+          .lk-titlebar{position:static!important;top:auto!important;background:transparent!important}
+          .lk-desk{display:none!important}
+          .lk-mobtog{display:grid!important;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:9px!important;background:${t.hover}!important}
+        }
+
         /* Tablet */
         @media(max-width:900px){
-          .lk-kpis{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))!important}
+          .lk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+          .lk-chart-grid{grid-template-columns:minmax(0,1fr)!important}
           .lk-main{padding:16px 18px 24px!important}
-          .lk-titlebar{padding:18px 18px 4px!important}
+          .lk-titlebar{padding:18px 18px 6px!important}
+          .lk-panel-head{padding:14px 16px!important}
+          .lk-panel-body{padding:16px!important}
         }
-        /* Date-range popover: presets beside calendar on desktop, stacked on small screens */
+
+        /* Date-range popover: keep it inside the viewport. */
         @media(max-width:680px){
-          .lk-daterange-pop{flex-wrap:wrap!important}
-          .lk-daterange-pop > div:first-child{border-right:none!important;padding-right:0!important;flex-direction:row!important;flex-wrap:wrap!important}
+          .lk-daterange-pop{position:fixed!important;left:10px!important;right:10px!important;top:68px!important;width:auto!important;max-width:none!important;max-height:calc(100dvh - 82px)!important;overflow-y:auto!important;flex-direction:column!important;flex-wrap:nowrap!important;gap:10px!important;padding:12px!important}
+          .lk-daterange-pop > div:first-child{width:100%;min-width:0!important;border-right:none!important;border-bottom:1px solid ${t.border};padding-right:0!important;padding-bottom:8px!important;flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important}
+          .lk-daterange-pop > div:first-child button{white-space:nowrap;flex:0 0 auto}
+          .lk-daterange-pop > div:nth-child(2){width:100%!important}
+          .lk-calendar-pair{display:grid!important;grid-template-columns:repeat(2,minmax(188px,1fr))!important;overflow-x:auto!important;padding-bottom:4px}
+          .lk-calendar{width:100%!important}
+          .lk-date-actions{position:sticky;bottom:-12px;background:${t.card};padding:10px 0 2px}
         }
+
         /* Mobile */
         @media(max-width:640px){
-          .lk-kpis{grid-template-columns:1fr 1fr!important;gap:10px!important}
-          .lk-main{padding:12px 12px 22px!important;gap:14px!important}
-          .lk-titlebar{padding:14px 12px 4px!important;gap:10px!important}
-          .lk-header{padding:11px 12px!important;gap:8px!important}
-          .lk-search{max-width:100%!important;flex:1 1 100%!important;order:5}
-          .lk-filters{width:100%!important}
-          .lk-filters > *{flex:1 1 auto!important}
-          table{font-size:12px!important}
-          th,td{padding:9px 8px!important;white-space:nowrap}
-          h1{font-size:18px!important}
+          html{font-size:15px}
+          body{min-width:0;touch-action:manipulation}
+          .lk-header{padding:10px 12px!important;gap:8px!important}
+          .lk-header-actions{margin-left:auto!important;gap:7px!important;flex:0 0 auto}
+          .lk-header-actions > button,.lk-header-actions > div > button{min-width:36px;min-height:36px}
+          .lk-search{order:10!important;flex:1 0 100%!important;max-width:none!important;width:100%!important;padding:9px 12px!important}
+          .lk-search input{font-size:16px!important}
+          .lk-search kbd{display:none!important}
+          .lk-titlebar{padding:14px 12px 6px!important;gap:12px!important;align-items:flex-start!important}
+          .lk-title-copy{width:100%}
+          .lk-title-copy p{line-height:1.45}
+          .lk-filters{width:100%!important;display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+          .lk-filters > *{width:100%!important;min-width:0!important;max-width:none!important}
+          .lk-filters > span{justify-content:flex-start!important}
+          .lk-filters > button,.lk-multiselect > button,.lk-date-picker > button{width:100%!important;min-height:44px;justify-content:center!important}
+          .lk-multiselect{min-width:0!important;width:100%!important}
+          .lk-multiselect-menu{left:0!important;right:auto!important;width:min(280px,calc(100vw - 24px))!important;max-height:min(360px,65dvh)!important;overflow:auto!important}
+          .lk-date-picker{width:100%!important}
+          .lk-date-button{width:100%!important;justify-content:center!important}
+          .lk-main{padding:12px 12px 24px!important;gap:14px!important}
+          .lk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+          .lk-kpi-card{padding:14px!important;border-radius:14px!important;gap:8px!important}
+          .lk-kpi-card:hover{transform:none!important}
+          .lk-kpi-val{font-size:clamp(20px,7vw,26px)!important}
+          .lk-ai-grid{grid-template-columns:minmax(0,1fr)!important}
+          .lk-panel{border-radius:14px!important}
+          .lk-panel-head{padding:13px 14px!important}
+          .lk-panel-body{padding:12px!important}
+          .lk-panel-head h3{font-size:14px!important;line-height:1.35}
+          .lk-chart-grid{gap:14px!important}
+         .lk-scroll{margin:0 -12px;padding:0 12px;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+          .lk-scroll table{font-size:12px!important}
+          .lk-scroll th,.lk-scroll td{padding:9px 8px!important;white-space:nowrap}
+          h1{font-size:19px!important}
           .lk-export-label{display:none!important}
           .lk-updated{display:none!important}
+          .lk-report-pop,.lk-notification-pop,.lk-user-pop{position:fixed!important;left:10px!important;right:10px!important;top:62px!important;width:auto!important;max-height:calc(100dvh - 76px)!important;overflow-y:auto!important}
+          .lk-modal-backdrop{padding:10px!important;align-items:end!important}
+          .lk-admin-modal{max-width:none!important;max-height:92dvh!important;overflow-y:auto!important;border-radius:18px 18px 0 0!important;padding:18px!important}
+          .lk-admin-selects{flex-direction:column!important}
+          .lk-modal-actions{display:grid!important;grid-template-columns:1fr 1fr!important}
+          .lk-modal-actions button{width:100%!important;min-height:44px}
+          .lk-back-top{right:12px!important;bottom:12px!important;width:42px!important;height:42px!important}
         }
+
         /* Small phones */
-        @media(max-width:380px){
+        @media(max-width:460px){
           .lk-kpis{grid-template-columns:1fr!important}
+          .lk-header-actions{gap:4px!important}
+          .lk-header-actions > div:nth-of-type(1){display:none!important}
+          .lk-panel-body{padding:11px!important}
+          .lk-scroll{margin:0 -11px;padding:0 11px}
+          .lk-calendar-pair{grid-template-columns:1fr!important;overflow:visible!important}
+          .lk-calendar{min-width:0!important}
+          .lk-date-actions{display:grid!important;grid-template-columns:1fr 1fr!important}
+          .lk-date-actions button{width:100%!important}
+        }
+
+        @media(max-width:360px){
+          .lk-main,.lk-titlebar,.lk-header{padding-left:9px!important;padding-right:9px!important}
+          .lk-header-actions button{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;padding:0!important}
+          .lk-kpi-card{padding:13px!important}
         }
       `}</style>
 
@@ -1530,17 +1748,22 @@ export default function App() {
         padding: "20px 14px", display: "flex", flexDirection: "column", gap: 4,
         position: "fixed", left: 0, top: 0, height: "100vh",
         overflowY: "auto", overflowX: "hidden", zIndex: 45,
-        WebkitOverflowScrolling: "touch" }}>
+        WebkitOverflowScrolling: "touch"
+      }}>
         <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "4px 10px 22px" }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, display: "grid", placeItems: "center",
+          <div style={{
+            width: 34, height: 34, borderRadius: 9, display: "grid", placeItems: "center",
             background: `linear-gradient(135deg, ${t.primary}, ${t.primary}CC)`,
-            boxShadow: `0 4px 12px ${t.primary}40` }}>
+            boxShadow: `0 4px 12px ${t.primary}40`
+          }}>
             <LayoutDashboard size={18} color="#fff" />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 16.5, letterSpacing: "-.4px" }}>Looker Studio</span>
+          <span style={{ fontWeight: 700, fontSize: 16.5, letterSpacing: "-.4px" }}>Bhaskar Employee Score</span>
         </div>
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: t.sub, letterSpacing: ".8px",
-          textTransform: "uppercase", padding: "0 12px 6px" }}>Analytics</span>
+        <span style={{
+          fontSize: 10.5, fontWeight: 700, color: t.sub, letterSpacing: ".8px",
+          textTransform: "uppercase", padding: "0 12px 6px"
+        }}>Analytics</span>
         {NAV.map((n) => {
           const on = tab === n.id;
           return (
@@ -1549,81 +1772,112 @@ export default function App() {
               border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13.5,
               fontWeight: on ? 600 : 500, textAlign: "left",
               background: on ? `${t.primary}14` : "transparent",
-              color: on ? t.primary : t.text }}
-              onMouseEnter={(e)=>{if(!on)e.currentTarget.style.background=t.hover;}}
-              onMouseLeave={(e)=>{if(!on)e.currentTarget.style.background="transparent";}}>
-              {on && <span style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
-                width: 3, height: 18, borderRadius: 3, background: t.primary }} />}
+              color: on ? t.primary : t.text
+            }}
+              onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = t.hover; }}
+              onMouseLeave={(e) => { if (!on) e.currentTarget.style.background = "transparent"; }}>
+              {on && <span style={{
+                position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
+                width: 3, height: 18, borderRadius: 3, background: t.primary
+              }} />}
               <n.icon size={18} /> {n.label}
             </button>
           );
         })}
-        <div style={{ marginTop: "auto", padding: 13, borderRadius: 12, background: t.hover,
-          fontSize: 11.5, color: t.sub, lineHeight: 1.5 }}>
-          <span style={{ display: "inline-flex", width: 7, height: 7, borderRadius: "50%",
-            background: t.success, marginRight: 6, verticalAlign: "middle" }} />
+        <div style={{
+          marginTop: "auto", padding: 13, borderRadius: 12, background: t.hover,
+          fontSize: 11.5, color: t.sub, lineHeight: 1.5
+        }}>
+          <span style={{
+            display: "inline-flex", width: 7, height: 7, borderRadius: "50%",
+            background: t.success, marginRight: 6, verticalAlign: "middle"
+          }} />
           Live · MongoDB backend, auto-refresh every 5 min.
         </div>
       </aside>
       {sidebar && <div onClick={() => setSidebar(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", backdropFilter: "blur(2px)", zIndex: 55 }} />}
 
       {/* MAIN */}
-      <div className="lk-maincol" style={{ display: "flex", flexDirection: "column", minWidth: 0,
-        marginLeft: 240, paddingTop: 57 }}>
+      <div className="lk-maincol" style={{
+        display: "flex", flexDirection: "column", minWidth: 0,
+        marginLeft: 240, paddingTop: 57
+      }}>
         {/* TOPBAR */}
-        <header className="lk-header" style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 24px",
+        <header className="lk-header" style={{
+          display: "flex", alignItems: "center", gap: 14, padding: "13px 24px",
           background: dark ? "rgba(38,40,44,.92)" : "rgba(255,255,255,.92)", backdropFilter: "blur(12px)",
-          borderBottom: `1px solid ${t.border}`, position: "fixed", top: 0, left: 240, right: 0, zIndex: 50 }}>
+          borderBottom: `1px solid ${t.border}`, position: "fixed", top: 0, left: 240, right: 0, zIndex: 50
+        }}>
           <button onClick={() => setSidebar(true)} className="lk-mobtog" style={{ border: "none", background: "transparent", color: t.text, cursor: "pointer", padding: 4 }}>
             <Menu size={20} />
           </button>
-          <div className="lk-search" style={{ display: "flex", alignItems: "center", gap: 9, background: t.hover,
+          <div className="lk-search" style={{
+            display: "flex", alignItems: "center", gap: 9, background: t.hover,
             borderRadius: 11, padding: "9px 14px", flex: 1, maxWidth: 440,
-            border: `1px solid transparent`, transition: "border-color .2s" }}>
+            border: `1px solid transparent`, transition: "border-color .2s"
+          }}>
             <Search size={16} color={t.sub} />
             <input id="lk-search-input" value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search employees or departments…  (press / )" style={{ border: "none", outline: "none",
-                background: "transparent", color: t.text, fontSize: 13.5, width: "100%", boxShadow: "none" }} />
+              placeholder="Search employees or departments…  (press / )" style={{
+                border: "none", outline: "none",
+                background: "transparent", color: t.text, fontSize: 13.5, width: "100%", boxShadow: "none"
+              }} />
             {search
               ? <X size={15} color={t.sub} style={{ cursor: "pointer" }} onClick={() => setSearch("")} />
-              : <kbd style={{ fontSize: 11, fontWeight: 600, color: t.sub, border: `1px solid ${t.border}`,
-                  borderRadius: 5, padding: "1px 6px", background: t.card }}>/</kbd>}
+              : <kbd style={{
+                fontSize: 11, fontWeight: 600, color: t.sub, border: `1px solid ${t.border}`,
+                borderRadius: 5, padding: "1px 6px", background: t.card
+              }}>/</kbd>}
           </div>
-          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="lk-header-actions" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
             {/* NEW: last updated + manual refresh */}
-            <span className="lk-updated" style={{ display: "flex", alignItems: "center", gap: 5,
-              fontSize: 12, color: t.sub, whiteSpace: "nowrap" }}>
+            <span className="lk-updated" style={{
+              display: "flex", alignItems: "center", gap: 5,
+              fontSize: 12, color: t.sub, whiteSpace: "nowrap"
+            }}>
               <Clock3 size={13} /> {timeAgo(lastUpdated)}
             </span>
             <button onClick={() => refreshData(true)} disabled={refreshing} title="Refresh data now"
-              style={{ border: `1px solid ${t.border}`, background: t.card, color: t.text, cursor: refreshing ? "wait" : "pointer",
-                width: 36, height: 36, borderRadius: "50%", display: "grid", placeItems: "center" }}>
+              style={{
+                border: `1px solid ${t.border}`, background: t.card, color: t.text, cursor: refreshing ? "wait" : "pointer",
+                width: 36, height: 36, borderRadius: "50%", display: "grid", placeItems: "center"
+              }}>
               <RefreshCw size={16} style={{ animation: refreshing ? "spin .7s linear infinite" : "none" }} />
             </button>
             <div style={{ position: "relative" }}>
-              <button onClick={() => setReportOpen(!reportOpen)} style={{ display: "flex", alignItems: "center", gap: 7,
+              <button onClick={() => setReportOpen(!reportOpen)} style={{
+                display: "flex", alignItems: "center", gap: 7,
                 padding: "8px 14px", borderRadius: 22, border: `1px solid ${t.border}`,
-                background: t.card, color: t.text, fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+                background: t.card, color: t.text, fontSize: 13, fontWeight: 500, cursor: "pointer"
+              }}>
                 <Download size={15} /> <span className="lk-export-label">Export Report</span>
                 <ChevronDown size={14} style={{ transform: reportOpen ? "rotate(180deg)" : "none", transition: ".2s" }} />
               </button>
               {reportOpen && (
                 <>
                   <div onClick={() => setReportOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 59 }} />
-                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 10px)", width: 270,
+                  <div className="lk-pop lk-report-pop" style={{
+                    position: "absolute", right: 0, top: "calc(100% + 10px)", width: 270,
                     background: t.card, border: `1px solid ${t.border}`, borderRadius: 12, zIndex: 61,
-                    boxShadow: "0 10px 32px rgba(60,64,67,.22)", overflow: "hidden", animation: "rise .15s both" }}>
-                    <div style={{ padding: "11px 16px", borderBottom: `1px solid ${t.border}`, fontWeight: 600,
-                      fontSize: 13.5, color: t.text }}>Export Center</div>
+                    boxShadow: "0 10px 32px rgba(60,64,67,.22)", overflow: "hidden", animation: "rise .15s both"
+                  }}>
+                    <div style={{
+                      padding: "11px 16px", borderBottom: `1px solid ${t.border}`, fontWeight: 600,
+                      fontSize: 13.5, color: t.text
+                    }}>Export Center</div>
                     {REPORTS.map((rp, i) => (
-                      <button key={i} onClick={() => { rp.fn(); setReportOpen(false); }} style={{ width: "100%",
+                      <button key={i} onClick={() => { rp.fn(); setReportOpen(false); }} style={{
+                        width: "100%",
                         display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", border: "none",
                         background: "transparent", cursor: "pointer", textAlign: "left",
-                        borderBottom: i < REPORTS.length - 1 ? `1px solid ${t.border}` : "none" }}
+                        borderBottom: i < REPORTS.length - 1 ? `1px solid ${t.border}` : "none"
+                      }}
                         onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                         onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                        <div style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0, display: "grid",
-                          placeItems: "center", background: `${rp.color}1F`, color: rp.color }}>
+                        <div style={{
+                          width: 32, height: 32, borderRadius: 8, flexShrink: 0, display: "grid",
+                          placeItems: "center", background: `${rp.color}1F`, color: rp.color
+                        }}>
                           <rp.icon size={16} />
                         </div>
                         <div>
@@ -1637,66 +1891,88 @@ export default function App() {
               )}
             </div>
             <div style={{ position: "relative" }}>
-              <button onClick={() => setNotifOpen(!notifOpen)} style={{ position: "relative",
-                border: "none", background: "transparent", color: t.text, cursor: "pointer", padding: 4 }}>
+              <button onClick={() => setNotifOpen(!notifOpen)} style={{
+                position: "relative",
+                border: "none", background: "transparent", color: t.text, cursor: "pointer", padding: 4
+              }}>
                 <Bell size={20} />
-                <span style={{ position: "absolute", top: 0, right: 0, width: 8, height: 8,
-                  borderRadius: "50%", background: t.danger }} />
+                <span style={{
+                  position: "absolute", top: 0, right: 0, width: 8, height: 8,
+                  borderRadius: "50%", background: t.danger
+                }} />
               </button>
               {notifOpen && (
                 <>
                   <div onClick={() => setNotifOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 59 }} />
-                <div style={{ position: "absolute", right: 0, top: "calc(100% + 10px)", width: 300,
-                  background: t.card, border: `1px solid ${t.border}`, borderRadius: 12, zIndex: 60,
-                  boxShadow: "0 8px 28px rgba(60,64,67,.22)", overflow: "hidden", animation: "rise .15s both" }}>
-                  <div style={{ padding: "12px 16px", borderBottom: `1px solid ${t.border}`, fontWeight: 600, fontSize: 14 }}>Notifications</div>
-                  {notifications.map((n, i) => (
-                    <div key={i} style={{ display: "flex", gap: 11, padding: "12px 16px",
-                      borderBottom: i < notifications.length - 1 ? `1px solid ${t.border}` : "none" }}>
-                      <div style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0,
-                        display: "grid", placeItems: "center", background: `${n.color}22`, color: n.color }}>
-                        <n.icon size={15} />
+                  <div className="lk-pop lk-notification-pop" style={{
+                    position: "absolute", right: 0, top: "calc(100% + 10px)", width: 300,
+                    background: t.card, border: `1px solid ${t.border}`, borderRadius: 12, zIndex: 60,
+                    boxShadow: "0 8px 28px rgba(60,64,67,.22)", overflow: "hidden", animation: "rise .15s both"
+                  }}>
+                    <div style={{ padding: "12px 16px", borderBottom: `1px solid ${t.border}`, fontWeight: 600, fontSize: 14 }}>Notifications</div>
+                    {notifications.map((n, i) => (
+                      <div key={i} style={{
+                        display: "flex", gap: 11, padding: "12px 16px",
+                        borderBottom: i < notifications.length - 1 ? `1px solid ${t.border}` : "none"
+                      }}>
+                        <div style={{
+                          width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+                          display: "grid", placeItems: "center", background: `${n.color}22`, color: n.color
+                        }}>
+                          <n.icon size={15} />
+                        </div>
+                        <div style={{ fontSize: 12.5 }}>
+                          <div style={{ color: t.text }}>{n.text}</div>
+                          <div style={{ color: t.sub, fontSize: 11, marginTop: 2 }}>{n.time}</div>
+                        </div>
                       </div>
-                      <div style={{ fontSize: 12.5 }}>
-                        <div style={{ color: t.text }}>{n.text}</div>
-                        <div style={{ color: t.sub, fontSize: 11, marginTop: 2 }}>{n.time}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
                 </>
               )}
             </div>
-            <button onClick={() => setDark(!dark)} style={{ border: "none", background: t.hover,
+            <button onClick={() => setDark(!dark)} style={{
+              border: "none", background: t.hover,
               color: t.text, cursor: "pointer", width: 36, height: 36, borderRadius: "50%",
-              display: "grid", placeItems: "center" }}>
+              display: "grid", placeItems: "center"
+            }}>
               {dark ? <Sun size={17} /> : <Moon size={17} />}
             </button>
             <div style={{ position: "relative" }}>
-              <button onClick={() => setUserMenu(!userMenu)} style={{ display: "flex", alignItems: "center", gap: 8,
-                border: "none", background: "transparent", cursor: "pointer", padding: 0 }}>
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: t.primary,
-                  color: "#fff", display: "grid", placeItems: "center", fontWeight: 600, fontSize: 13 }}>
+              <button onClick={() => setUserMenu(!userMenu)} style={{
+                display: "flex", alignItems: "center", gap: 8,
+                border: "none", background: "transparent", cursor: "pointer", padding: 0
+              }}>
+                <div style={{
+                  width: 34, height: 34, borderRadius: "50%", background: t.primary,
+                  color: "#fff", display: "grid", placeItems: "center", fontWeight: 600, fontSize: 13
+                }}>
                   {(user.fullName || user.username || "?").charAt(0).toUpperCase()}
                 </div>
               </button>
               {userMenu && (
                 <>
                   <div onClick={() => setUserMenu(false)} style={{ position: "fixed", inset: 0, zIndex: 59 }} />
-                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 10px)", width: 220,
+                  <div className="lk-pop lk-user-pop" style={{
+                    position: "absolute", right: 0, top: "calc(100% + 10px)", width: 220,
                     background: t.card, border: `1px solid ${t.border}`, borderRadius: 12, zIndex: 61,
-                    boxShadow: "0 10px 32px rgba(60,64,67,.22)", overflow: "hidden", animation: "rise .15s both" }}>
+                    boxShadow: "0 10px 32px rgba(60,64,67,.22)", overflow: "hidden", animation: "rise .15s both"
+                  }}>
                     <div style={{ padding: "14px 16px", borderBottom: `1px solid ${t.border}` }}>
                       <div style={{ fontSize: 14, fontWeight: 600, color: t.text }}>{user.fullName}</div>
                       <div style={{ fontSize: 12, color: t.sub, marginTop: 2 }}>{user.email}</div>
-                      <span style={{ display: "inline-block", marginTop: 7, padding: "2px 9px", borderRadius: 20,
-                        fontSize: 11, fontWeight: 600, background: `${t.primary}1A`, color: t.primary }}>
+                      <span style={{
+                        display: "inline-block", marginTop: 7, padding: "2px 9px", borderRadius: 20,
+                        fontSize: 11, fontWeight: 600, background: `${t.primary}1A`, color: t.primary
+                      }}>
                         {user.role}{user.dept ? ` · ${user.dept}` : ""}
                       </span>
                     </div>
-                    <button onClick={() => { setUser(null); setUserMenu(false); }} style={{ width: "100%",
+                    <button onClick={() => { setUser(null); setUserMenu(false); }} style={{
+                      width: "100%",
                       display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", border: "none",
-                      background: "transparent", cursor: "pointer", color: t.danger, fontSize: 13.5, fontWeight: 500 }}
+                      background: "transparent", cursor: "pointer", color: t.danger, fontSize: 13.5, fontWeight: 500
+                    }}
                       onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                       onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                       <LogOut size={16} /> Sign out
@@ -1709,11 +1985,13 @@ export default function App() {
         </header>
 
         {/* PAGE TITLE + FILTER BAR */}
-        <div className="lk-titlebar" style={{ display: "flex", flexWrap: "wrap", gap: 14, padding: "16px 24px 4px",
+        <div className="lk-titlebar" style={{
+          display: "flex", flexWrap: "wrap", gap: 14, padding: "16px 24px 4px",
           alignItems: "center", justifyContent: "space-between",
           position: "sticky", top: 0, zIndex: 30,
-          background: dark ? "rgba(27,28,31,.92)" : "rgba(245,246,248,.92)", backdropFilter: "blur(8px)" }}>
-          <div>
+          background: dark ? "rgba(27,28,31,.92)" : "rgba(245,246,248,.92)", backdropFilter: "blur(8px)"
+        }}>
+          <div className="lk-title-copy">
             <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: "-.6px", color: t.text }}>
               {(NAV.find((n) => n.id === tab) || {}).label}
             </h1>
@@ -1724,10 +2002,14 @@ export default function App() {
           <div className="lk-filters" style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
             <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: t.sub, fontWeight: 500 }}>
               <Filter size={15} /> Filters
-              {(() => { const n = fDept.length + fStatus.length + (search ? 1 : 0) + (dateRange.start ? 1 : 0);
-                return n ? <span style={{ marginLeft: 2, minWidth: 18, height: 18, borderRadius: 9, padding: "0 5px",
+              {(() => {
+                const n = fDept.length + fStatus.length + (search ? 1 : 0) + (dateRange.start ? 1 : 0);
+                return n ? <span style={{
+                  marginLeft: 2, minWidth: 18, height: 18, borderRadius: 9, padding: "0 5px",
                   background: t.primary, color: "#fff", fontSize: 11, fontWeight: 700,
-                  display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{n}</span> : null; })()}
+                  display: "inline-flex", alignItems: "center", justifyContent: "center"
+                }}>{n}</span> : null;
+              })()}
             </span>
             <MultiSelect t={t} label="Department" options={DEPARTMENTS} selected={fDept} setSelected={setFDept} />
             <MultiSelect t={t} label="Status" options={["Active", "Inactive", "#N/A", "Blank"]} selected={fStatus} setSelected={setFStatus} />
@@ -1735,15 +2017,18 @@ export default function App() {
             {/* NEW: density toggle */}
             <button onClick={() => setDensity(density === "comfortable" ? "compact" : "comfortable")}
               title="Toggle table density"
-              style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 22,
-                border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+              style={{
+                display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 22,
+                border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 13, fontWeight: 500, cursor: "pointer"
+              }}>
               <Rows3 size={15} /> {density === "comfortable" ? "Compact" : "Comfortable"}
             </button>
             {(fDept.length || fStatus.length || search || dateRange.start) ? (
               <button onClick={() => { setFDept([]); setFStatus([]); setSearch(""); setDateRange({ start: null, end: null }); }} style={{
                 display: "flex", alignItems: "center", gap: 5, padding: "9px 14px", borderRadius: 22,
                 border: "none", background: `${t.danger}14`, color: t.danger, fontSize: 13,
-                fontWeight: 600, cursor: "pointer" }}>
+                fontWeight: 600, cursor: "pointer"
+              }}>
                 <X size={14} /> Clear all
               </button>
             ) : null}
@@ -1752,11 +2037,15 @@ export default function App() {
 
         <main className={`lk-main lk-density-${density}`}
           id="lk-main-scroll"
-          style={{ padding: "18px 24px 28px", display: "flex", flexDirection: "column", gap: 20,
-          position: "relative" }}>
+          style={{
+            padding: "18px 24px 28px", display: "flex", flexDirection: "column", gap: 20,
+            position: "relative"
+          }}>
           {/* KPI GRID */}
-          <div className="lk-kpis" style={{ display: "grid", gap: 16,
-            gridTemplateColumns: "repeat(auto-fill,minmax(215px,1fr))" }}>
+          <div className="lk-kpis" style={{
+            display: "grid", gap: 16,
+            gridTemplateColumns: "repeat(auto-fill,minmax(215px,1fr))"
+          }}>
             <KpiCard t={t} icon={Users} label="Total Employees" value={fmt(kpis.total)} growth={4.2} spark={sp(1)} delay={0} />
             <KpiCard t={t} icon={UserCheck} label="Active Employees" value={fmt(kpis.active)} growth={2.8} spark={sp(2)} delay={40} />
             <KpiCard t={t} icon={UserX} label="Inactive Employees" value={fmt(kpis.inactive)} growth={-1.5} spark={sp(3)} delay={80} />
@@ -1770,11 +2059,13 @@ export default function App() {
 
           {/* AI INSIGHTS */}
           <Panel t={t} title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Sparkles size={16} color={t.primary} /> AI Analytics</span>}>
-            <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))" }}>
+            <div className="lk-ai-grid" style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))" }}>
               {insights.map((ins, i) => (
-                <div key={i} style={{ display: "flex", gap: 10, padding: "12px 14px", borderRadius: 10,
+                <div key={i} style={{
+                  display: "flex", gap: 10, padding: "12px 14px", borderRadius: 10,
                   background: ins.type === "good" ? `${t.success}14` : `${t.warning}1F`,
-                  borderLeft: `3px solid ${ins.type === "good" ? t.success : t.warning}` }}>
+                  borderLeft: `3px solid ${ins.type === "good" ? t.success : t.warning}`
+                }}>
                   <Sparkles size={16} color={ins.type === "good" ? t.success : t.warning} style={{ flexShrink: 0, marginTop: 2 }} />
                   <span style={{ fontSize: 13, lineHeight: 1.45 }}>{ins.text}</span>
                 </div>
@@ -1799,10 +2090,14 @@ export default function App() {
                           <td style={{ padding: "11px 12px", fontWeight: 600, color: t.sub }}>{i + 1}</td>
                           <td style={{ padding: "11px 12px", fontWeight: 600 }}>{d.dept}</td>
                           <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(d.count)}</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
-                            background: scoreBg(d.avg), color: scoreColor(d.avg) }}>{d.avg}</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right",
-                            background: pendingBg(d.pending, Math.max(...deptAgg.map(x=>x.pending), 1)) }}>{fmt(d.pending)}</td>
+                          <td style={{
+                            padding: "11px 12px", textAlign: "right", fontWeight: 600,
+                            background: scoreBg(d.avg), color: scoreColor(d.avg)
+                          }}>{d.avg}</td>
+                          <td style={{
+                            padding: "11px 12px", textAlign: "right",
+                            background: pendingBg(d.pending, Math.max(...deptAgg.map(x => x.pending), 1))
+                          }}>{fmt(d.pending)}</td>
                           <td style={{ padding: "11px 12px", textAlign: "right" }}>{d.completion}%</td>
                           <td style={{ padding: "11px 12px", textAlign: "right", color: t.success }}>{d.onTimePct}%</td>
                           <td style={{ padding: "11px 12px", textAlign: "right", color: t.danger }}>{d.latePct}%</td>
@@ -1813,7 +2108,7 @@ export default function App() {
                 </div>
               </Panel>
 
-              <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))" }}>
+              <div className="lk-chart-grid" style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))" }}>
                 <Panel t={t} title="Department Comparison">
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={deptAgg} layout="vertical" margin={{ left: 10 }}>
@@ -1868,22 +2163,26 @@ export default function App() {
                     )}
                     {visibleRows.map((r, i) => (
                       <tr key={r.id} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
-                        onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-                        onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
+                        onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+                        onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                         <td style={{ padding: "10px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
                         <td style={{ padding: "10px 12px", fontWeight: 600 }}>{r.name}</td>
                         <td style={{ padding: "10px 12px", color: t.sub }}>{r.dept}</td>
-                        <td style={{ padding: "10px 12px", textAlign: "right", fontWeight: 600,
-                          background: scoreBg(r.score), color: scoreColor(r.score) }}>{r.score}</td>
+                        <td style={{
+                          padding: "10px 12px", textAlign: "right", fontWeight: 600,
+                          background: scoreBg(r.score), color: scoreColor(r.score)
+                        }}>{r.score}</td>
                         <td style={{ padding: "10px 12px", textAlign: "right" }}>{fmt(r.planned)}</td>
                         <td style={{ padding: "10px 12px", textAlign: "right" }}>{fmt(r.actual)}</td>
                         <td style={{ padding: "10px 12px", textAlign: "right" }}>{fmt(r.onTime)}</td>
                         <td style={{ padding: "10px 12px", textAlign: "right" }}>{fmt(r.late)}</td>
                         <td style={{ padding: "10px 12px", textAlign: "right", background: pendingBg(r.pending, maxPending) }}>{fmt(r.pending)}</td>
                         <td style={{ padding: "10px 12px" }}>
-                          <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 11.5, fontWeight: 600,
+                          <span style={{
+                            padding: "3px 9px", borderRadius: 20, fontSize: 11.5, fontWeight: 600,
                             background: r.active === "Active" ? `${t.success}22` : `${t.sub}22`,
-                            color: r.active === "Active" ? t.success : t.sub }}>{r.active}</span>
+                            color: r.active === "Active" ? t.success : t.sub
+                          }}>{r.active}</span>
                         </td>
                       </tr>
                     ))}
@@ -1895,8 +2194,10 @@ export default function App() {
                   </div>
                 )}
               </div>
-              <div style={{ padding: "10px 18px", borderTop: `1px solid ${t.border}`,
-                fontSize: 12.5, color: t.sub }}>
+              <div style={{
+                padding: "10px 18px", borderTop: `1px solid ${t.border}`,
+                fontSize: 12.5, color: t.sub
+              }}>
                 Showing {Math.min(visibleCount, sorted.length)} of {sorted.length} employees
               </div>
             </Panel>
@@ -1904,173 +2205,212 @@ export default function App() {
 
           {tab === "monthly" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <Panel t={t} style={{ padding: 0 }}
-              title={<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", width: "100%", justifyContent: "space-between" }}>
-                <span>Scoring View</span>
-                <select value={scoringView} onChange={(e) => setScoringView(e.target.value)}
-                  style={{ padding: "8px 14px", borderRadius: 10, border: `1px solid ${t.border}`,
-                    background: t.card, color: t.text, fontSize: 13, fontWeight: 600, cursor: "pointer", outline: "none" }}>
-                  <option value="doer">Doer Name Wise Score</option>
-                  <option value="dept">Department Wise Score</option>
-                  <option value="week">Weekly Score</option>
-                  <option value="month">Monthly Score</option>
-                  <option value="year">Yearly Score</option>
-                </select>
-              </div>}>
-              <div className="lk-scroll" style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                  <thead><tr>
-                    {["Rank", scoringView === "doer" ? "Doer Name" : scoringView === "dept" ? "Department" : scoringView === "week" ? "Week" : scoringView === "month" ? "Month & Year" : "Year",
-                      "Score", "Planned", "Completed", "Pending", "Completion %"].map((h, i) => (
-                      <th key={h} style={{ padding: "11px 12px", textAlign: i >= 2 ? "right" : "left",
-                        fontSize: 12, fontWeight: 600, color: t.sub, position: "sticky", top: 0,
-                        background: t.hover, whiteSpace: "nowrap" }}>{h}</th>
-                    ))}
-                  </tr></thead>
-                  <tbody>
-                    {scoringData.length === 0 && (
-                      <tr><td colSpan={7} style={{ padding: 24, textAlign: "center", color: t.sub }}>No data for this view.</td></tr>
-                    )}
-                    {scoringData.map((g, i) => (
-                      <tr key={`${g.label}-${i}`} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
-                        onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-                        onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
-                        <td style={{ padding: "11px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
-                        <td style={{ padding: "11px 12px", fontWeight: 600 }}>{g.label}</td>
-                        <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
-                          background: scoreBg(g.score), color: scoreColor(g.score) }}>{g.score}</td>
-                        <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(g.planned)}</td>
-                        <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(g.actual)}</td>
-                        <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(g.pending)}</td>
-                        <td style={{ padding: "11px 12px", textAlign: "right" }}>{g.completion}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div style={{ padding: "10px 18px", borderTop: `1px solid ${t.border}`, fontSize: 12.5, color: t.sub }}>
-                {scoringData.length} groups · grouped by {scoringView === "doer" ? "doer name" : scoringView === "dept" ? "department" : scoringView === "week" ? "week" : scoringView === "month" ? "month & year" : "year"}
-              </div>
-            </Panel>
-
-            <Panel t={t} title={`Monthly Breakdown · ${MONTHLY.length} months`} style={{ padding: 0 }}>
-              <div className="lk-scroll" style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                  <thead><tr>
-                    <Th>Month</Th><Th align="right">Score</Th>
-                    <Th align="right">Activities Done</Th><Th align="right">Completion %</Th>
-                    <Th align="right">Trend</Th>
-                  </tr></thead>
-                  <tbody>
-                    {MONTHLY.map((m, i) => {
-                      const prev = i > 0 ? MONTHLY[i - 1].score : m.score;
-                      const up = m.score >= prev;
-                      return (
-                        <tr key={m.month} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
-                          onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-                          onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
-                          <td style={{ padding: "11px 12px", fontWeight: 600 }}>{m.month}</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
-                            background: scoreBg(m.score), color: scoreColor(m.score) }}>{m.score}</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(m.activities)}</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right" }}>{m.completion}%</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4,
-                              color: up ? t.success : t.danger, fontWeight: 600, fontSize: 12 }}>
-                              {up ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                              {Math.abs(+(m.score - prev).toFixed(1))}
-                            </span>
-                          </td>
+              <Panel t={t} style={{ padding: 0 }}
+                title={<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", width: "100%", justifyContent: "space-between" }}>
+                  <span>Scoring View</span>
+                  <select value={scoringView} onChange={(e) => setScoringView(e.target.value)}
+                    style={{
+                      padding: "8px 14px", borderRadius: 10, border: `1px solid ${t.border}`,
+                      background: t.card, color: t.text, fontSize: 13, fontWeight: 600, cursor: "pointer", outline: "none"
+                    }}>
+                    <option value="doer">Doer Name Wise Score</option>
+                    <option value="dept">Department Wise Score</option>
+                    <option value="week">Weekly Score</option>
+                    <option value="month">Monthly Score</option>
+                    <option value="year">Yearly Score</option>
+                  </select>
+                </div>}>
+                <div className="lk-scroll" style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead><tr>
+                      {["Rank", scoringView === "doer" ? "Doer Name" : scoringView === "dept" ? "Department" : scoringView === "week" ? "Week" : scoringView === "month" ? "Month & Year" : "Year",
+                        "Score", "Planned", "Completed", "Pending", "Completion %"].map((h, i) => (
+                          <th key={h} style={{
+                            padding: "11px 12px", textAlign: i >= 2 ? "right" : "left",
+                            fontSize: 12, fontWeight: 600, color: t.sub, position: "sticky", top: 0,
+                            background: t.hover, whiteSpace: "nowrap"
+                          }}>{h}</th>
+                        ))}
+                    </tr></thead>
+                    <tbody>
+                      {scoringData.length === 0 && (
+                        <tr><td colSpan={7} style={{ padding: 24, textAlign: "center", color: t.sub }}>No data for this view.</td></tr>
+                      )}
+                      {scoringData.map((g, i) => (
+                        <tr key={`${g.label}-${i}`} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+                          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                          <td style={{ padding: "11px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
+                          <td style={{ padding: "11px 12px", fontWeight: 600 }}>{g.label}</td>
+                          <td style={{
+                            padding: "11px 12px", textAlign: "right", fontWeight: 600,
+                            background: scoreBg(g.score), color: scoreColor(g.score)
+                          }}>{g.score}</td>
+                          <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(g.planned)}</td>
+                          <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(g.actual)}</td>
+                          <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(g.pending)}</td>
+                          <td style={{ padding: "11px 12px", textAlign: "right" }}>{g.completion}%</td>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              <div style={{ padding: "10px 18px", borderTop: `1px solid ${t.border}`,
-                fontSize: 12.5, color: t.sub }}>
-                {MONTHLY.length} months
-              </div>
-            </Panel>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ padding: "10px 18px", borderTop: `1px solid ${t.border}`, fontSize: 12.5, color: t.sub }}>
+                  {scoringData.length} groups · grouped by {scoringView === "doer" ? "doer name" : scoringView === "dept" ? "department" : scoringView === "week" ? "week" : scoringView === "month" ? "month & year" : "year"}
+                </div>
+              </Panel>
+
+              <Panel t={t} title={`Monthly Breakdown · ${MONTHLY.length} months`} style={{ padding: 0 }}>
+                <div className="lk-scroll" style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead><tr>
+                      <Th>Month</Th><Th align="right">Score</Th>
+                      <Th align="right">Activities Done</Th><Th align="right">Completion %</Th>
+                      <Th align="right">Trend</Th>
+                    </tr></thead>
+                    <tbody>
+                      {MONTHLY.map((m, i) => {
+                        const prev = i > 0 ? MONTHLY[i - 1].score : m.score;
+                        const up = m.score >= prev;
+                        return (
+                          <tr key={m.month} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+                            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                            <td style={{ padding: "11px 12px", fontWeight: 600 }}>{m.month}</td>
+                            <td style={{
+                              padding: "11px 12px", textAlign: "right", fontWeight: 600,
+                              background: scoreBg(m.score), color: scoreColor(m.score)
+                            }}>{m.score}</td>
+                            <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(m.activities)}</td>
+                            <td style={{ padding: "11px 12px", textAlign: "right" }}>{m.completion}%</td>
+                            <td style={{ padding: "11px 12px", textAlign: "right" }}>
+                              <span style={{
+                                display: "inline-flex", alignItems: "center", gap: 4,
+                                color: up ? t.success : t.danger, fontWeight: 600, fontSize: 12
+                              }}>
+                                {up ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                                {Math.abs(+(m.score - prev).toFixed(1))}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{
+                  padding: "10px 18px", borderTop: `1px solid ${t.border}`,
+                  fontSize: 12.5, color: t.sub
+                }}>
+                  {MONTHLY.length} months
+                </div>
+              </Panel>
             </div>
           )}
 
           {tab === "yearly" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <Panel t={t} title={`Year-over-Year Summary · ${YEARLY.length} years`} style={{ padding: 0 }}>
-              <div className="lk-scroll" style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                  <thead><tr>
-                    <Th>Year</Th><Th align="right">Score</Th>
-                    <Th align="right">Productivity %</Th><Th align="right">Activities Done</Th>
-                    <Th align="right">YoY Growth</Th>
-                  </tr></thead>
-                  <tbody>
-                    {YEARLY.map((y, i) => {
-                      const prev = i > 0 ? YEARLY[i - 1].activities : y.activities;
-                      const growth = prev ? +(((y.activities - prev) / prev) * 100).toFixed(1) : 0;
-                      const up = growth >= 0;
-                      return (
-                        <tr key={y.year} className="lk-row" style={{ borderTop: `1px solid ${t.border}`,
-                          cursor: "pointer", background: String(y.year) === String(activeYear) ? `${t.primary}0D` : "transparent" }}
-                          onClick={() => setSelYear(y.year)}
-                          onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-                          onMouseLeave={(e)=>e.currentTarget.style.background=String(y.year) === String(activeYear) ? `${t.primary}0D` : "transparent"}>
-                          <td style={{ padding: "11px 12px", fontWeight: 600 }}>{y.year}</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
-                            background: scoreBg(y.score), color: scoreColor(y.score) }}>{y.score}</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right" }}>{y.productivity}%</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(y.activities)}</td>
-                          <td style={{ padding: "11px 12px", textAlign: "right" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4,
-                              color: up ? t.success : t.danger, fontWeight: 600, fontSize: 12 }}>
-                              {i === 0 ? "—" : <>{up ? <TrendingUp size={14} /> : <TrendingDown size={14} />}{Math.abs(growth)}%</>}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              <div style={{ padding: "10px 18px", borderTop: `1px solid ${t.border}`,
-                fontSize: 12.5, color: t.sub }}>
-                {YEARLY.length} years · click a year to see its employees below
-              </div>
-            </Panel>
+              <Panel t={t} title={`Year-over-Year Summary · ${YEARLY.length} years`} style={{ padding: 0 }}>
+                <div className="lk-scroll" style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead><tr>
+                      <Th>Year</Th><Th align="right">Score</Th>
+                      <Th align="right">Productivity %</Th><Th align="right">Activities Done</Th>
+                      <Th align="right">YoY Growth</Th>
+                    </tr></thead>
+                    <tbody>
+                      {YEARLY.map((y, i) => {
+                        const prev = i > 0 ? YEARLY[i - 1].activities : y.activities;
+                        const growth = prev ? +(((y.activities - prev) / prev) * 100).toFixed(1) : 0;
+                        const up = growth >= 0;
+                        return (
+                          <tr key={y.year} className="lk-row" style={{
+                            borderTop: `1px solid ${t.border}`,
+                            cursor: "pointer", background: String(y.year) === String(activeYear) ? `${t.primary}0D` : "transparent"
+                          }}
+                            onClick={() => setSelYear(y.year)}
+                            onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+                            onMouseLeave={(e) => e.currentTarget.style.background = String(y.year) === String(activeYear) ? `${t.primary}0D` : "transparent"}>
+                            <td style={{ padding: "11px 12px", fontWeight: 600 }}>{y.year}</td>
+                            <td style={{
+                              padding: "11px 12px", textAlign: "right", fontWeight: 600,
+                              background: scoreBg(y.score), color: scoreColor(y.score)
+                            }}>{y.score}</td>
+                            <td style={{ padding: "11px 12px", textAlign: "right" }}>{y.productivity}%</td>
+                            <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(y.activities)}</td>
+                            <td style={{ padding: "11px 12px", textAlign: "right" }}>
+                              <span style={{
+                                display: "inline-flex", alignItems: "center", gap: 4,
+                                color: up ? t.success : t.danger, fontWeight: 600, fontSize: 12
+                              }}>
+                                {i === 0 ? "—" : <>{up ? <TrendingUp size={14} /> : <TrendingDown size={14} />}{Math.abs(growth)}%</>}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{
+                  padding: "10px 18px", borderTop: `1px solid ${t.border}`,
+                  fontSize: 12.5, color: t.sub
+                }}>
+                  {YEARLY.length} years · click a year to see its employees below
+                </div>
+              </Panel>
 
-            <Panel t={t} style={{ padding: 0 }}
-              title={<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                <span>Employee Performance · {activeYear || "—"}</span>
-                <span style={{ fontSize: 12, color: t.sub, fontWeight: 400 }}>({yearEmployees.length} employees)</span>
-              </div>}
-              action={periodPicker(YEARLY, activeYear, setSelYear, (y) => y.year, (y) => y.year)}>
-              {empDetailTable(yearEmployees)}
-            </Panel>
+              <Panel t={t} style={{ padding: 0 }}
+                title={<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  <span>Employee Performance · {activeYear || "—"}</span>
+                  <span style={{ fontSize: 12, color: t.sub, fontWeight: 400 }}>({yearEmployees.length} employees)</span>
+                </div>}
+                action={periodPicker(YEARLY, activeYear, setSelYear, (y) => y.year, (y) => y.year)}>
+                {empDetailTable(yearEmployees)}
+              </Panel>
             </div>
           )}
 
-          {tab === "scores" && (
+{tab === "scores" && (
             <Panel t={t} title={`Score Summary · ${scoreSummary.length} employees`} style={{ padding: 0 }}>
               <div className="lk-scroll" style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead><tr>
-                    {["Rank", "Name", "Weekly Score", "Monthly Score", "Yearly Score"].map((h, i) => (
-                      <th key={h} style={{ padding: "11px 12px", textAlign: i >= 2 ? "right" : "left",
-                        fontSize: 12, fontWeight: 600, color: t.sub, position: "sticky", top: 0,
-                        background: t.hover, whiteSpace: "nowrap" }}>{h}</th>
+                    {[
+                      { label: "Rank", key: null, align: "left" },
+                      { label: "Name", key: "name", align: "left" },
+                      { label: "Department", key: "dept", align: "left" },
+                      { label: "Weekly Score", key: "weekly", align: "right" },
+                      { label: "Monthly Score", key: "monthly", align: "right" },
+                      { label: "Yearly Score", key: "yearly", align: "right" },
+                    ].map((col) => (
+                      <th key={col.label}
+                        onClick={() => col.key && setScoreSort((s) => ({ key: col.key, dir: s.key === col.key && s.dir === "desc" ? "asc" : "desc" }))}
+                        style={{ padding: "11px 12px", textAlign: col.align,
+                          fontSize: 12, fontWeight: 600, color: t.sub, position: "sticky", top: 0,
+                          background: t.hover, whiteSpace: "nowrap",
+                          cursor: col.key ? "pointer" : "default", userSelect: "none" }}>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4,
+                          justifyContent: col.align === "right" ? "flex-end" : "flex-start" }}>
+                          {col.label}
+                          {col.key && (scoreSort.key === col.key
+                            ? (scoreSort.dir === "desc" ? <ChevronDown size={13} /> : <ChevronUp size={13} />)
+                            : <ArrowUpDown size={12} style={{ opacity: .4 }} />)}
+                        </span>
+                      </th>
                     ))}
                   </tr></thead>
                   <tbody>
-                    {scoreSummary.length === 0 && (
-                      <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: t.sub }}>No data.</td></tr>
+                    {scoreSummarySorted.length === 0 && (
+                      <tr><td colSpan={6} style={{ padding: 24, textAlign: "center", color: t.sub }}>No data.</td></tr>
                     )}
-                    {scoreSummary.map((r, i) => (
+                    {scoreSummarySorted.map((r, i) => (
                       <tr key={`${r.name}-${i}`} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
                         onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
                         onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
                         <td style={{ padding: "11px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
                         <td style={{ padding: "11px 12px", fontWeight: 600 }}>{r.name}</td>
+                        <td style={{ padding: "11px 12px", color: t.sub }}>{r.dept}</td>
                         <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
                           background: r.weekly != null ? scoreBg(r.weekly) : "transparent",
                           color: r.weekly != null ? scoreColor(r.weekly) : t.sub }}>{r.weekly ?? "—"}</td>
@@ -2092,35 +2432,47 @@ export default function App() {
           )}
 
           {tab === "board" && (
-            <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))" }}>
-              <Panel t={t} title={<span style={{ display:"flex",alignItems:"center",gap:8 }}><Trophy size={16} color={t.success}/> Top 10 Performers</span>} style={{ padding: 0 }}>
+            <div className="lk-chart-grid" style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit,minmax(340px,1fr))" }}>
+              <Panel t={t} title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Trophy size={16} color={t.success} /> Top 10 Performers</span>} style={{ padding: 0 }}>
                 {top10.map((r, i) => (
-                  <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 18px",
-                    borderTop: i ? `1px solid ${t.border}` : "none" }}>
-                    <span style={{ width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center",
+                  <div key={r.id} style={{
+                    display: "flex", alignItems: "center", gap: 12, padding: "11px 18px",
+                    borderTop: i ? `1px solid ${t.border}` : "none"
+                  }}>
+                    <span style={{
+                      width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center",
                       fontSize: 12, fontWeight: 700, color: "#fff",
-                      background: i === 0 ? "#FBBC04" : i === 1 ? "#9AA0A6" : i === 2 ? "#CD7F32" : t.primary }}>{i + 1}</span>
+                      background: i === 0 ? "#FBBC04" : i === 1 ? "#9AA0A6" : i === 2 ? "#CD7F32" : t.primary
+                    }}>{i + 1}</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, fontSize: 13.5 }}>{r.name}</div>
                       <div style={{ fontSize: 11.5, color: t.sub }}>{r.dept}</div>
                     </div>
-                    <span style={{ padding: "3px 10px", borderRadius: 20, fontWeight: 700, fontSize: 13,
-                      background: scoreBg(r.score), color: scoreColor(r.score) }}>{r.score}</span>
+                    <span style={{
+                      padding: "3px 10px", borderRadius: 20, fontWeight: 700, fontSize: 13,
+                      background: scoreBg(r.score), color: scoreColor(r.score)
+                    }}>{r.score}</span>
                   </div>
                 ))}
               </Panel>
-              <Panel t={t} title={<span style={{ display:"flex",alignItems:"center",gap:8 }}><TrendingDown size={16} color={t.danger}/> Bottom 10 Performers</span>} style={{ padding: 0 }}>
+              <Panel t={t} title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><TrendingDown size={16} color={t.danger} /> Bottom 10 Performers</span>} style={{ padding: 0 }}>
                 {bottom10.map((r, i) => (
-                  <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 18px",
-                    borderTop: i ? `1px solid ${t.border}` : "none" }}>
-                    <span style={{ width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center",
-                      fontSize: 12, fontWeight: 700, color: "#fff", background: t.danger }}>{i + 1}</span>
+                  <div key={r.id} style={{
+                    display: "flex", alignItems: "center", gap: 12, padding: "11px 18px",
+                    borderTop: i ? `1px solid ${t.border}` : "none"
+                  }}>
+                    <span style={{
+                      width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center",
+                      fontSize: 12, fontWeight: 700, color: "#fff", background: t.danger
+                    }}>{i + 1}</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, fontSize: 13.5 }}>{r.name}</div>
                       <div style={{ fontSize: 11.5, color: t.sub }}>{r.dept}</div>
                     </div>
-                    <span style={{ padding: "3px 10px", borderRadius: 20, fontWeight: 700, fontSize: 13,
-                      background: scoreBg(r.score), color: scoreColor(r.score) }}>{r.score}</span>
+                    <span style={{
+                      padding: "3px 10px", borderRadius: 20, fontWeight: 700, fontSize: 13,
+                      background: scoreBg(r.score), color: scoreColor(r.score)
+                    }}>{r.score}</span>
                   </div>
                 ))}
               </Panel>
@@ -2129,159 +2481,191 @@ export default function App() {
 
           {tab === "admin" && isAdmin && (
             <>
-            <Panel t={t} style={{ padding: 0 }}
-              title={<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", width: "100%", justifyContent: "space-between" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 8 }}><Settings size={16} color={t.primary} /> User Management · {adminUsers.length} users</span>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button onClick={() => setAdminForm({ ...blankForm })} disabled={adminBusy} style={{ display: "flex", alignItems: "center", gap: 6,
-                    padding: "7px 14px", borderRadius: 20, border: "none", background: t.primary,
-                    color: "#fff", fontSize: 12.5, fontWeight: 600, cursor: adminBusy ? "wait" : "pointer" }}>
-                    <User size={14} /> Add User
-                  </button>
-                  <button onClick={loadUsers} disabled={adminBusy} style={{ display: "flex", alignItems: "center", gap: 6,
-                    padding: "7px 13px", borderRadius: 20, border: `1px solid ${t.border}`, background: t.card,
-                    color: t.text, fontSize: 12.5, fontWeight: 600, cursor: adminBusy ? "wait" : "pointer" }}>
-                    <RotateCcw size={14} /> Refresh
-                  </button>
-                </div>
-              </div>}>
-              {adminMsg && (
-                <div style={{ margin: "0 0 14px", padding: "9px 14px", borderRadius: 8, fontSize: 12.5,
-                  background: `${t.primary}14`, color: t.primary }}>{adminMsg}</div>
-              )}
-              <div className="lk-scroll" style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                  <thead><tr>
-                    {["#","Full Name","Username","Email","Mobile","Role","Status","Actions"].map((h) => (
-                      <th key={h} style={{ padding: "11px 12px", textAlign: "left", fontSize: 12, fontWeight: 600,
-                        color: t.sub, position: "sticky", top: 0, background: t.hover, whiteSpace: "nowrap" }}>{h}</th>
-                    ))}
-                  </tr></thead>
-                  <tbody>
-                    {adminUsers.length === 0 && (
-                      <tr><td colSpan={8} style={{ padding: 24, textAlign: "center", color: t.sub }}>
-                        {adminBusy ? "Loading users…" : "No users found."}</td></tr>
-                    )}
-                    {adminUsers.map((u, i) => {
-                      const active = String(u.status).toLowerCase() === "active";
-                      const self = u.username === user.username;
-                      return (
-                        <tr key={u.username || i} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
-                          onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-                          onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
-                          <td style={{ padding: "10px 12px", color: t.sub }}>{i + 1}</td>
-                          <td style={{ padding: "10px 12px", fontWeight: 600 }}>{u.fullName}{self ? " (you)" : ""}</td>
-                          <td style={{ padding: "10px 12px" }}>{u.username}</td>
-                          <td style={{ padding: "10px 12px", color: t.sub }}>{u.email}</td>
-                          <td style={{ padding: "10px 12px", color: t.sub }}>{u.mobile}</td>
-                          <td style={{ padding: "10px 12px" }}>
-                            <span style={{ padding: "2px 9px", borderRadius: 20, fontSize: 11, fontWeight: 600,
-                              background: `${t.primary}1A`, color: t.primary }}>{u.role || "Employee"}</span>
-                          </td>
-                          <td style={{ padding: "10px 12px" }}>
-                            <span style={{ padding: "3px 9px", borderRadius: 20, fontSize: 11.5, fontWeight: 600,
-                              background: active ? `${t.success}22` : `${t.danger}22`,
-                              color: active ? t.success : t.danger }}>{u.status || "Active"}</span>
-                          </td>
-                          <td style={{ padding: "10px 12px" }}>
-                            <div style={{ display: "flex", gap: 8 }}>
-                              <button onClick={() => setAdminForm({ fullName: u.fullName || "", email: u.email || "",
-                                mobile: u.mobile || "", username: u.username, password: "", role: u.role || "Employee",
-                                status: u.status || "Active", _edit: true })} disabled={adminBusy} title="Edit"
-                                style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 11px", borderRadius: 8,
-                                  border: "none", cursor: adminBusy ? "wait" : "pointer", fontSize: 12, fontWeight: 600,
-                                  background: `${t.primary}18`, color: t.primary }}>
-                                <Settings size={13} /> Edit
-                              </button>
-                              <button onClick={() => blockUser(u)} disabled={adminBusy || self} title={active ? "Block" : "Activate"}
-                                style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 11px", borderRadius: 8,
-                                  border: "none", cursor: (adminBusy || self) ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 600,
-                                  opacity: self ? 0.4 : 1,
-                                  background: active ? `${t.warning}22` : `${t.success}22`,
-                                  color: active ? "#B06000" : t.success }}>
-                                {active ? <><Ban size={13} /> Block</> : <><Check size={13} /> Activate</>}
-                              </button>
-                              <button onClick={() => removeUser(u)} disabled={adminBusy || self} title="Delete"
-                                style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 11px", borderRadius: 8,
-                                  border: "none", cursor: (adminBusy || self) ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 600,
-                                  opacity: self ? 0.4 : 1, background: `${t.danger}18`, color: t.danger }}>
-                                <Trash2 size={13} /> Delete
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              <div style={{ padding: "10px 18px", borderTop: `1px solid ${t.border}`, fontSize: 12.5, color: t.sub }}>
-                Blocking a user prevents login · Deleting removes them from the users collection · You can't block or delete yourself
-              </div>
-            </Panel>
-
-            {adminForm && (
-              <div onClick={() => setAdminForm(null)} style={{ position: "fixed", inset: 0, zIndex: 80,
-                background: "rgba(0,0,0,.45)", backdropFilter: "blur(2px)", display: "grid", placeItems: "center", padding: 20 }}>
-                <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 460, background: t.card,
-                  border: `1px solid ${t.border}`, borderRadius: 16, padding: 24, animation: "rise .2s both",
-                  boxShadow: "0 24px 60px rgba(60,64,67,.3)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>{adminForm._edit ? "Edit User" : "Add User"}</h3>
-                    <button onClick={() => setAdminForm(null)} style={{ border: "none", background: "transparent", cursor: "pointer", color: t.sub }}><X size={18} /></button>
-                  </div>
-                  {[
-                    ["fullName", "Full Name", "text"],
-                    ["username", "Username", "text"],
-                    ["email", "Email", "email"],
-                    ["mobile", "Mobile", "text"],
-                    ["password", adminForm._edit ? "New Password (leave blank to keep)" : "Password", "text"],
-                  ].map(([k, label, type]) => (
-                    <div key={k} style={{ marginBottom: 12 }}>
-                      <label style={{ fontSize: 12.5, fontWeight: 600, color: t.sub, display: "block", marginBottom: 5 }}>{label}</label>
-                      <input type={type} value={adminForm[k]} disabled={k === "username" && adminForm._edit}
-                        onChange={(e) => setAdminForm({ ...adminForm, [k]: e.target.value })}
-                        style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: `1px solid ${t.border}`,
-                          background: (k === "username" && adminForm._edit) ? t.hover : t.card, color: t.text, fontSize: 14, outline: "none", boxSizing: "border-box" }} />
-                    </div>
-                  ))}
-                  <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: 12.5, fontWeight: 600, color: t.sub, display: "block", marginBottom: 5 }}>Role</label>
-                      <select value={adminForm.role} onChange={(e) => setAdminForm({ ...adminForm, role: e.target.value })}
-                        style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 14, outline: "none" }}>
-                        <option>Employee</option><option>Manager</option><option>Admin</option>
-                      </select>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: 12.5, fontWeight: 600, color: t.sub, display: "block", marginBottom: 5 }}>Status</label>
-                      <select value={adminForm.status} onChange={(e) => setAdminForm({ ...adminForm, status: e.target.value })}
-                        style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 14, outline: "none" }}>
-                        <option>Active</option><option>Blocked</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                    <button onClick={() => setAdminForm(null)} style={{ padding: "10px 18px", borderRadius: 9,
-                      border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-                    <button onClick={saveUser} disabled={adminBusy} style={{ padding: "10px 22px", borderRadius: 9,
-                      border: "none", background: t.primary, color: "#fff", fontSize: 14, fontWeight: 600, cursor: adminBusy ? "wait" : "pointer" }}>
-                      {adminBusy ? "Saving…" : (adminForm._edit ? "Save Changes" : "Create User")}
+              <Panel t={t} style={{ padding: 0 }}
+                title={<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", width: "100%", justifyContent: "space-between" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}><Settings size={16} color={t.primary} /> User Management · {adminUsers.length} users</span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={() => setAdminForm({ ...blankForm })} disabled={adminBusy} style={{
+                      display: "flex", alignItems: "center", gap: 6,
+                      padding: "7px 14px", borderRadius: 20, border: "none", background: t.primary,
+                      color: "#fff", fontSize: 12.5, fontWeight: 600, cursor: adminBusy ? "wait" : "pointer"
+                    }}>
+                      <User size={14} /> Add User
+                    </button>
+                    <button onClick={loadUsers} disabled={adminBusy} style={{
+                      display: "flex", alignItems: "center", gap: 6,
+                      padding: "7px 13px", borderRadius: 20, border: `1px solid ${t.border}`, background: t.card,
+                      color: t.text, fontSize: 12.5, fontWeight: 600, cursor: adminBusy ? "wait" : "pointer"
+                    }}>
+                      <RotateCcw size={14} /> Refresh
                     </button>
                   </div>
+                </div>}>
+                {adminMsg && (
+                  <div style={{
+                    margin: "0 0 14px", padding: "9px 14px", borderRadius: 8, fontSize: 12.5,
+                    background: `${t.primary}14`, color: t.primary
+                  }}>{adminMsg}</div>
+                )}
+                <div className="lk-scroll" style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead><tr>
+                      {["#", "Full Name", "Username", "Email", "Mobile", "Role", "Status", "Actions"].map((h) => (
+                        <th key={h} style={{
+                          padding: "11px 12px", textAlign: "left", fontSize: 12, fontWeight: 600,
+                          color: t.sub, position: "sticky", top: 0, background: t.hover, whiteSpace: "nowrap"
+                        }}>{h}</th>
+                      ))}
+                    </tr></thead>
+                    <tbody>
+                      {adminUsers.length === 0 && (
+                        <tr><td colSpan={8} style={{ padding: 24, textAlign: "center", color: t.sub }}>
+                          {adminBusy ? "Loading users…" : "No users found."}</td></tr>
+                      )}
+                      {adminUsers.map((u, i) => {
+                        const active = String(u.status).toLowerCase() === "active";
+                        const self = u.username === user.username;
+                        return (
+                          <tr key={u.username || i} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+                            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                            <td style={{ padding: "10px 12px", color: t.sub }}>{i + 1}</td>
+                            <td style={{ padding: "10px 12px", fontWeight: 600 }}>{u.fullName}{self ? " (you)" : ""}</td>
+                            <td style={{ padding: "10px 12px" }}>{u.username}</td>
+                            <td style={{ padding: "10px 12px", color: t.sub }}>{u.email}</td>
+                            <td style={{ padding: "10px 12px", color: t.sub }}>{u.mobile}</td>
+                            <td style={{ padding: "10px 12px" }}>
+                              <span style={{
+                                padding: "2px 9px", borderRadius: 20, fontSize: 11, fontWeight: 600,
+                                background: `${t.primary}1A`, color: t.primary
+                              }}>{u.role || "Employee"}</span>
+                            </td>
+                            <td style={{ padding: "10px 12px" }}>
+                              <span style={{
+                                padding: "3px 9px", borderRadius: 20, fontSize: 11.5, fontWeight: 600,
+                                background: active ? `${t.success}22` : `${t.danger}22`,
+                                color: active ? t.success : t.danger
+                              }}>{u.status || "Active"}</span>
+                            </td>
+                            <td style={{ padding: "10px 12px" }}>
+                              <div style={{ display: "flex", gap: 8 }}>
+                                <button onClick={() => setAdminForm({
+                                  fullName: u.fullName || "", email: u.email || "",
+                                  mobile: u.mobile || "", username: u.username, password: "", role: u.role || "Employee",
+                                  status: u.status || "Active", _edit: true
+                                })} disabled={adminBusy} title="Edit"
+                                  style={{
+                                    display: "flex", alignItems: "center", gap: 5, padding: "6px 11px", borderRadius: 8,
+                                    border: "none", cursor: adminBusy ? "wait" : "pointer", fontSize: 12, fontWeight: 600,
+                                    background: `${t.primary}18`, color: t.primary
+                                  }}>
+                                  <Settings size={13} /> Edit
+                                </button>
+                                <button onClick={() => blockUser(u)} disabled={adminBusy || self} title={active ? "Block" : "Activate"}
+                                  style={{
+                                    display: "flex", alignItems: "center", gap: 5, padding: "6px 11px", borderRadius: 8,
+                                    border: "none", cursor: (adminBusy || self) ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 600,
+                                    opacity: self ? 0.4 : 1,
+                                    background: active ? `${t.warning}22` : `${t.success}22`,
+                                    color: active ? "#B06000" : t.success
+                                  }}>
+                                  {active ? <><Ban size={13} /> Block</> : <><Check size={13} /> Activate</>}
+                                </button>
+                                <button onClick={() => removeUser(u)} disabled={adminBusy || self} title="Delete"
+                                  style={{
+                                    display: "flex", alignItems: "center", gap: 5, padding: "6px 11px", borderRadius: 8,
+                                    border: "none", cursor: (adminBusy || self) ? "not-allowed" : "pointer", fontSize: 12, fontWeight: 600,
+                                    opacity: self ? 0.4 : 1, background: `${t.danger}18`, color: t.danger
+                                  }}>
+                                  <Trash2 size={13} /> Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-            )}
+                <div style={{ padding: "10px 18px", borderTop: `1px solid ${t.border}`, fontSize: 12.5, color: t.sub }}>
+                  Blocking a user prevents login · Deleting removes them from the users collection · You can't block or delete yourself
+                </div>
+              </Panel>
+
+              {adminForm && (
+                <div className="lk-modal-backdrop" onClick={() => setAdminForm(null)} style={{
+                  position: "fixed", inset: 0, zIndex: 80,
+                  background: "rgba(0,0,0,.45)", backdropFilter: "blur(2px)", display: "grid", placeItems: "center", padding: 20
+                }}>
+                  <div className="lk-admin-modal" onClick={(e) => e.stopPropagation()} style={{
+                    width: "100%", maxWidth: 460, background: t.card,
+                    border: `1px solid ${t.border}`, borderRadius: 16, padding: 24, animation: "rise .2s both",
+                    boxShadow: "0 24px 60px rgba(60,64,67,.3)"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>{adminForm._edit ? "Edit User" : "Add User"}</h3>
+                      <button onClick={() => setAdminForm(null)} style={{ border: "none", background: "transparent", cursor: "pointer", color: t.sub }}><X size={18} /></button>
+                    </div>
+                    {[
+                      ["fullName", "Full Name", "text"],
+                      ["username", "Username", "text"],
+                      ["email", "Email", "email"],
+                      ["mobile", "Mobile", "text"],
+                      ["password", adminForm._edit ? "New Password (leave blank to keep)" : "Password", "text"],
+                    ].map(([k, label, type]) => (
+                      <div key={k} style={{ marginBottom: 12 }}>
+                        <label style={{ fontSize: 12.5, fontWeight: 600, color: t.sub, display: "block", marginBottom: 5 }}>{label}</label>
+                        <input type={type} value={adminForm[k]} disabled={k === "username" && adminForm._edit}
+                          onChange={(e) => setAdminForm({ ...adminForm, [k]: e.target.value })}
+                          style={{
+                            width: "100%", padding: "10px 12px", borderRadius: 9, border: `1px solid ${t.border}`,
+                            background: (k === "username" && adminForm._edit) ? t.hover : t.card, color: t.text, fontSize: 14, outline: "none", boxSizing: "border-box"
+                          }} />
+                      </div>
+                    ))}
+                    <div className="lk-admin-selects" style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: 12.5, fontWeight: 600, color: t.sub, display: "block", marginBottom: 5 }}>Role</label>
+                        <select value={adminForm.role} onChange={(e) => setAdminForm({ ...adminForm, role: e.target.value })}
+                          style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 14, outline: "none" }}>
+                          <option>Employee</option><option>Manager</option><option>Admin</option>
+                        </select>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: 12.5, fontWeight: 600, color: t.sub, display: "block", marginBottom: 5 }}>Status</label>
+                        <select value={adminForm.status} onChange={(e) => setAdminForm({ ...adminForm, status: e.target.value })}
+                          style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 14, outline: "none" }}>
+                          <option>Active</option><option>Blocked</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="lk-modal-actions" style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                      <button onClick={() => setAdminForm(null)} style={{
+                        padding: "10px 18px", borderRadius: 9,
+                        border: `1px solid ${t.border}`, background: t.card, color: t.text, fontSize: 14, fontWeight: 600, cursor: "pointer"
+                      }}>Cancel</button>
+                      <button onClick={saveUser} disabled={adminBusy} style={{
+                        padding: "10px 22px", borderRadius: 9,
+                        border: "none", background: t.primary, color: "#fff", fontSize: 14, fontWeight: 600, cursor: adminBusy ? "wait" : "pointer"
+                      }}>
+                        {adminBusy ? "Saving…" : (adminForm._edit ? "Save Changes" : "Create User")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
           {/* NEW: back-to-top button */}
           {showTop && (
-            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            <button className="lk-back-top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               title="Back to top"
-              style={{ position: "fixed", bottom: 24, right: 24,
+              style={{
+                position: "fixed", bottom: 24, right: 24,
                 width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
                 background: t.primary, color: "#fff", boxShadow: "0 6px 20px rgba(26,115,232,.4)",
-                display: "grid", placeItems: "center", zIndex: 40, animation: "popIn .2s both" }}>
+                display: "grid", placeItems: "center", zIndex: 40, animation: "popIn .2s both"
+              }}>
               <ArrowUp size={20} />
             </button>
           )}

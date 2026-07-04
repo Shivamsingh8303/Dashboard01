@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { MongoClient } from "mongodb";
@@ -6,10 +7,12 @@ import { MongoClient } from "mongodb";
    CONFIG — set these as environment variables in production.
    MONGO_URI: your Atlas connection string (with password)
 ----------------------------------------------------------------- */
-const MONGO_URI =
-  process.env.MONGO_URI ||
- "mongodb://shivam_db_user:iksRLdzPvvV68rE4@ac-w19e57c-shard-00-00.vigjb5y.mongodb.net:27017,ac-w19e57c-shard-00-01.vigjb5y.mongodb.net:27017,ac-w19e57c-shard-00-02.vigjb5y.mongodb.net:27017/?ssl=true&replicaSet=atlas-695gxp-shard-0&authSource=admin&appName=Cluster0"
- 
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  console.error("❌ MONGO_URI is missing. Create a .env file with MONGO_URI=...");
+  process.exit(1);
+}
 const DB_NAME = "autoscore";
 const SCORES_COL = "scoring"; // your imported sheet data
 const USERS_COL = "users";   // login/admin accounts
@@ -81,7 +84,7 @@ function safeUser(u) {
     username: u.username || "",
     role: u.role || "Employee",
     status: u.status || "Active",
-    dept: u.dept || "",
+    dept: u.dept || "", 
   };
 }
 
@@ -91,7 +94,9 @@ function safeUser(u) {
 app.post("/getData", async (req, res) => {
   try {
     const docs = await db.collection(SCORES_COL).find({}).toArray();
+    console.log("DOCS",docs);
     const rows = docs.map(toFrontendRow);
+    console.log("rows",rows)
     res.json({ ok: true, rows });
   } catch (e) {
     res.json({ ok: false, error: e.message });
@@ -233,4 +238,4 @@ client.connect().then(async () => {
   app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
 }).catch((e) => {
   console.error("Mongo connection failed:", e.message);
-});
+});  
