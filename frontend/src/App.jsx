@@ -75,11 +75,13 @@ const TOKENS = {
     bg: "#F5F6F8", card: "#FFFFFF", border: "#DADCE0", primary: "#1A73E8",
     success: "#34A853", warning: "#FBBC04", danger: "#EA4335", text: "#202124",
     sub: "#5F6368", hover: "#F1F3F4", track: "#E8EAED",
+    header: "#5F6368", // same as sub in light mode
   },
   dark: {
     bg: "#1B1C1F", card: "#26282C", border: "#3C4043", primary: "#8AB4F8",
     success: "#81C995", warning: "#FDD663", danger: "#F28B82", text: "#E8EAED",
     sub: "#9AA0A6", hover: "#303134", track: "#3C4043",
+    header: "#D4AF37", // gold in dark mode
   },
 };
 
@@ -274,7 +276,7 @@ function KpiCard({ t, icon: Icon, label, value, growth, spark, delay, valueColor
       onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 28px rgba(60,64,67,.14), 0 2px 8px rgba(60,64,67,.06)"; }}
       onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 1px 2px rgba(60,64,67,.06), 0 2px 8px rgba(60,64,67,.04)"; }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 12.5, color: t.sub, fontWeight: 500, letterSpacing: ".1px" }}>{label}</span>
+        <span style={{ fontSize: 12.5, color: t.header, fontWeight: 500, letterSpacing: ".1px" }}>{label}</span>
         <div style={{
           width: 36, height: 36, borderRadius: 10, display: "grid", placeItems: "center",
           background: `linear-gradient(135deg, ${t.primary}1F, ${t.primary}10)`, color: t.primary
@@ -749,9 +751,9 @@ function LoginPage({ onLogin }) {
         border: `1px solid ${t.border}`, boxShadow: "0 24px 60px rgba(60,64,67,.16), 0 4px 16px rgba(60,64,67,.08)",
         padding: "36px 34px", animation: "rise .45s cubic-bezier(.4,0,.2,1) both"
       }}>
-        <div style={{ display: "flex",flexDirection:"column", alignItems: "center", gap: 11, marginBottom: 10 ,}}>
-         <img src="/bhas.jpeg" alt="logo" style={{ height: 120, width: "auto", objectFit: "contain", display: "block", marginTop: "-20px", marginLeft: "-10px" }} />
-         <div style={{ fontWeight: 700, fontSize: 19, color: t.text, letterSpacing: "-.4px", marginTop:"-20px"}}>Bhaskar Employee Score</div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginBottom: 10 }}>
+          <img src="/bhas2.png" alt="logo" style={{ height: 150, width: "auto", objectFit: "contain", display: "block", marginTop: "-30px" }} />
+          <div style={{ fontWeight: 700, fontSize: 19, color: t.text, letterSpacing: "-.4px", marginTop: "-30px"}}>Bhaskar Employee Score</div>
         </div>
         <p style={{ margin: "0 0 20px", color: t.sub, fontSize: 13.5 }}>
           {mode === "login" ? "Welcome back — sign in to continue" : "Create your account"}
@@ -1281,9 +1283,9 @@ export default function App() {
     });
     return result.sort((a, b) => (b.yearly ?? -Infinity) - (a.yearly ?? -Infinity));
   }, [filtered]);
-  
 
-// Sort Score Summary by the clicked column (name / dept / weekly / monthly / yearly).
+
+  // Sort Score Summary by the clicked column (name / dept / weekly / monthly / yearly).
   const scoreSummarySorted = useMemo(() => {
     const { key, dir } = scoreSort;
     const arr = [...scoreSummary];
@@ -1494,7 +1496,7 @@ export default function App() {
   const Th = ({ k, children, align = "left" }) => (
     <th onClick={() => k && setSort({ key: k, dir: sort.key === k && sort.dir === "desc" ? "asc" : "desc" })}
       style={{
-        padding: "11px 12px", textAlign: align, fontSize: 12, fontWeight: 600, color: t.sub,
+        padding: "11px 12px", textAlign: align, fontSize: 12, fontWeight: 800, color: t.header,
         cursor: k ? "pointer" : "default", userSelect: "none", position: "sticky", top: 0,
         background: t.hover, whiteSpace: "nowrap"
       }}>
@@ -1545,7 +1547,7 @@ export default function App() {
           {["Rank", "Employee", "Department", "Score", "Planned", "Actual", "On-Time", "Late", "Pending", "Status"].map((h, i) => (
             <th key={h} style={{
               padding: "11px 12px", textAlign: i >= 3 && i <= 8 ? "right" : "left",
-              fontSize: 12, fontWeight: 600, color: t.sub, position: "sticky", top: 0,
+              fontSize: 12, fontWeight: 600, color: t.header, position: "sticky", top: 0,
               background: t.hover, whiteSpace: "nowrap"
             }}>{h}</th>
           ))}
@@ -1765,10 +1767,10 @@ export default function App() {
         overflowY: "auto", overflowX: "hidden", zIndex: 45,
         WebkitOverflowScrolling: "touch"
       }}>
-          <img src="/bhas.jpeg" alt="logo" style={{ height: 135, width: "auto", objectFit: "contain", display: "block", marginTop: "-30px", marginLeft: "-20px"}} />
+        <img src="/bhas2.png" alt="logo" style={{ height: 170, width: "auto", objectFit: "contain", display: "block", marginBottom: 8 , marginTop: "-40px" }} />
         <span style={{
           fontSize: 10.5, fontWeight: 700, color: t.sub, letterSpacing: ".8px",
-          textTransform: "uppercase", padding: "0 12px 6px"
+          textTransform: "uppercase", padding: "0 12px 6px" , marginTop: "-50px"
         }}>Analytics</span>
         {NAV.map((n) => {
           const on = tab === n.id;
@@ -1798,7 +1800,13 @@ export default function App() {
             display: "inline-flex", width: 7, height: 7, borderRadius: "50%",
             background: t.success, marginRight: 6, verticalAlign: "middle"
           }} />
-          Live · MongoDB backend, auto-refresh every 5 min.
+          Live · Database, auto-refresh every 5 min.
+        </div>
+        <div style={{
+          marginTop: "auto", padding: 13, borderRadius: 12, background: t.hover,
+          fontSize: 11.5, color: t.sub, lineHeight: 1.5
+        }}>
+          © 2026 Bhaskar Silk Mills Pvt. Ltd. All Rights Reserved.
         </div>
       </aside>
       {sidebar && <div onClick={() => setSidebar(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", backdropFilter: "blur(2px)", zIndex: 55 }} />}
@@ -2233,7 +2241,7 @@ export default function App() {
                         "Score", "Planned", "Completed", "Pending", "Completion %"].map((h, i) => (
                           <th key={h} style={{
                             padding: "11px 12px", textAlign: i >= 2 ? "right" : "left",
-                            fontSize: 12, fontWeight: 600, color: t.sub, position: "sticky", top: 0,
+                            fontSize: 12, fontWeight: 600, color: t.header, position: "sticky", top: 0,
                             background: t.hover, whiteSpace: "nowrap"
                           }}>{h}</th>
                         ))}
@@ -2377,7 +2385,7 @@ export default function App() {
             </div>
           )}
 
-{tab === "scores" && (
+          {tab === "scores" && (
             <Panel t={t} title={`Score Summary · ${scoreSummary.length} employees`} style={{ padding: 0 }}>
               <div className="lk-scroll" style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -2392,12 +2400,16 @@ export default function App() {
                     ].map((col) => (
                       <th key={col.label}
                         onClick={() => col.key && setScoreSort((s) => ({ key: col.key, dir: s.key === col.key && s.dir === "desc" ? "asc" : "desc" }))}
-                        style={{ padding: "11px 12px", textAlign: col.align,
-                          fontSize: 12, fontWeight: 600, color: t.sub, position: "sticky", top: 0,
+                        style={{
+                          padding: "11px 12px", textAlign: col.align,
+                          fontSize: 12, fontWeight: 800, color: t.header, position: "sticky", top: 0,
                           background: t.hover, whiteSpace: "nowrap",
-                          cursor: col.key ? "pointer" : "default", userSelect: "none" }}>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4,
-                          justifyContent: col.align === "right" ? "flex-end" : "flex-start" }}>
+                          cursor: col.key ? "pointer" : "default", userSelect: "none"
+                        }}>
+                        <span style={{
+                          display: "inline-flex", alignItems: "center", gap: 4,
+                          justifyContent: col.align === "right" ? "flex-end" : "flex-start"
+                        }}>
                           {col.label}
                           {col.key && (scoreSort.key === col.key
                             ? (scoreSort.dir === "desc" ? <ChevronDown size={13} /> : <ChevronUp size={13} />)
@@ -2412,20 +2424,26 @@ export default function App() {
                     )}
                     {scoreSummarySorted.map((r, i) => (
                       <tr key={`${r.name}-${i}`} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
-                        onMouseEnter={(e)=>e.currentTarget.style.background=t.hover}
-                        onMouseLeave={(e)=>e.currentTarget.style.background="transparent"}>
+                        onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
+                        onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                         <td style={{ padding: "11px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
                         <td style={{ padding: "11px 12px", fontWeight: 600 }}>{r.name}</td>
                         <td style={{ padding: "11px 12px", color: t.sub }}>{r.dept}</td>
-                        <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
+                        <td style={{
+                          padding: "11px 12px", textAlign: "right", fontWeight: 600,
                           background: r.weekly != null ? scoreBg(r.weekly) : "transparent",
-                          color: r.weekly != null ? scoreColor(r.weekly) : t.sub }}>{r.weekly ?? "—"}</td>
-                        <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
+                          color: r.weekly != null ? scoreColor(r.weekly) : t.sub
+                        }}>{r.weekly ?? "—"}</td>
+                        <td style={{
+                          padding: "11px 12px", textAlign: "right", fontWeight: 600,
                           background: r.monthly != null ? scoreBg(r.monthly) : "transparent",
-                          color: r.monthly != null ? scoreColor(r.monthly) : t.sub }}>{r.monthly ?? "—"}</td>
-                        <td style={{ padding: "11px 12px", textAlign: "right", fontWeight: 600,
+                          color: r.monthly != null ? scoreColor(r.monthly) : t.sub
+                        }}>{r.monthly ?? "—"}</td>
+                        <td style={{
+                          padding: "11px 12px", textAlign: "right", fontWeight: 600,
                           background: r.yearly != null ? scoreBg(r.yearly) : "transparent",
-                          color: r.yearly != null ? scoreColor(r.yearly) : t.sub }}>{r.yearly ?? "—"}</td>
+                          color: r.yearly != null ? scoreColor(r.yearly) : t.sub
+                        }}>{r.yearly ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>
