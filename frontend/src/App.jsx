@@ -1563,7 +1563,7 @@ export default function App() {
               onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
               <td className="rank-cell">{i + 1}</td>
-              <td className="name-cell" title={g.label}>{r.name}</td>
+              <td className="name-cell" title={r.name}>{r.name}</td>
               <td style={{ padding: "11px 12px", color: t.sub }}>{r.dept}</td>
               <td style={{
                 padding: "11px 12px", textAlign: "right", fontWeight: 600,
@@ -2172,7 +2172,7 @@ export default function App() {
                       {deptAgg.map((d, i) => (
                         <tr key={d.dept} style={{ borderTop: `1px solid ${t.border}` }}>
                           <td style={{ padding: "11px 12px", fontWeight: 600, color: t.sub }}>{i + 1}</td>
-                          <td className="name-cell" title={g.label}>{d.dept}</td>
+                          <td className="name-cell" title={d.dept}>{d.dept}</td>
                           <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(d.count)}</td>
                           <td style={{
                             padding: "11px 12px", textAlign: "right", fontWeight: 600,
@@ -2325,7 +2325,7 @@ export default function App() {
                           onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                           onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                           <td className="rank-cell">{i + 1}</td>
-                          <td className="name-cell" title={g.label}>{g.label}</td>
+                          <td className="name-cell" title={m.month}>{m.month}</td>
                           <td style={{
                             padding: "11px 12px", textAlign: "right", fontWeight: 600,
                             background: scoreBg(g.score), color: scoreColor(g.score)
