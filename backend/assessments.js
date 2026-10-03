@@ -11,6 +11,7 @@ import crypto from "crypto";
      ASSESS_COLLECTION optional - default "assessments"
      EMP_DB_NAME      optional - database that holds your employee/scoring data (default = server DB)
      EMP_COLLECTION   optional - collection with "Person Name" + "Department" (default = server SCORES_COL)
+                      (the same collection is used for the employee list AND the date-range score)
 ----------------------------------------------------------------- */
 const CRITERIA = [
   "Technical Skill", "Workflow Knowledge", "Follow-up & Updates", "On-Time Reports",
@@ -28,10 +29,48 @@ function keyOk(req) {
 
 const txt = (v, max) => String(v ?? "").trim().slice(0, max);
 
+/* ---------- date helpers (same rules as the dashboard's cleanDate/parseDate) ---------- */
+const MIN_YEAR = 2000;
+function utcDay(y, m, d) {            // m = 1..12 ; returns ms (UTC midnight) or null if not a real date
+  const t = Date.UTC(y, m - 1, d);
+  const x = new Date(t);
+  return x.getUTCFullYear() === y && x.getUTCMonth() === m - 1 && x.getUTCDate() === d ? t : null;
+}
+// Value stored in the "From" column -> UTC-midnight ms, or null when unusable
+function rowDay(v) {
+  if (v == null || v === "") return null;
+  if (v instanceof Date) return isNaN(v) ? null : utcDay(v.getFullYear(), v.getMonth() + 1, v.getDate());
+  const s = String(v).trim();
+  let m = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(s);
+  if (m) return +m[3] >= MIN_YEAR ? utcDay(+m[3], +m[2], +m[1]) : null;
+  m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
+  if (m) return +m[1] >= MIN_YEAR ? utcDay(+m[1], +m[2], +m[3]) : null;
+  return null;
+}
+// "DD/MM/YYYY" from the form -> ms ; "" -> null (open ended) ; bad -> undefined
+function inputDay(v) {
+  const s = String(v ?? "").trim();
+  if (!s) return null;
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s);
+  if (!m) return undefined;
+  const t = utcDay(+m[3], +m[2], +m[1]);
+  return t == null ? undefined : t;
+}
+const dmy = (t) => {
+  const d = new Date(t);
+  return `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}`;
+};
+const r2 = (n) => Math.round(n * 100) / 100;
+// Looker Studio / dashboard formula
+const calcScore = (planned, onTime, late) =>
+  planned ? Math.round(((onTime + late * 0.5) / planned - 1) * 10000) / 100 : 0;
+const num = (field) => ({ $convert: { input: field, to: "double", onError: 0, onNull: 0 } });
+const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 function validate(b) {
   if (!b || typeof b !== "object") return { error: "Invalid body." };
-  const candidate = txt(b.cand, 120), hod = txt(b.hod, 120), dept = txt(b.dept, 120);
-  if (!candidate) return { error: "Candidate is required." };
+  const candidate = txt(b.cand, 120), dept = txt(b.dept, 120);
+  if (!candidate) return { error: "Employee is required." };
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(b.date || ""));
   if (!m) return { error: "Invalid date." };
   const dt = new Date(Date.UTC(+m[3], +m[2] - 1, +m[1]));
@@ -47,7 +86,7 @@ function validate(b) {
   CRITERIA.forEach((c, i) => (ratings[c] = b.r[i]));
   return {
     doc: {
-      candidate, hod, department: dept,
+      candidate, department: dept,
       date: b.date, dateISO: dt,
       ratings, totalScore: total, maxScore: CRITERIA.length * 5,
       averageScore: Math.round((total / CRITERIA.length) * 100) / 100,
@@ -117,6 +156,67 @@ export function registerAssessmentRoutes(app, client, defaultDbName, scoresCol =
     } catch (e) {
       console.error("employeesList:", e.message);
       res.status(500).json({ ok: false, error: "Could not load employees." });
+    }
+  });
+
+
+  // Scoring of ONE employee between two dates - same data + same formula as the dashboard.
+  //   body: { name, from: "DD/MM/YYYY" | "", to: "DD/MM/YYYY" | "" }   (blank = no limit)
+  let nameIdx = null;
+  app.post("/employeeScore", async (req, res) => {
+    if (!process.env.FORM_API_KEY) return res.status(503).json({ ok: false, error: "FORM_API_KEY not set on server." });
+    if (!keyOk(req)) return res.status(401).json({ ok: false, error: "Unauthorized." });
+    try {
+      const name = txt(req.body?.name, 120);
+      if (!name) return res.status(400).json({ ok: false, error: "Employee is required." });
+      const from = inputDay(req.body?.from), to = inputDay(req.body?.to);
+      if (from === undefined || to === undefined) return res.status(400).json({ ok: false, error: "Invalid date." });
+      if (from != null && to != null && from > to)
+        return res.status(400).json({ ok: false, error: "From date cannot be after To date." });
+
+      const coll = client.db(empDb).collection(empCol);
+      // best effort: makes the per-employee lookup fast (runs once, never blocks / fails the request)
+      nameIdx ||= coll.createIndex({ "Person Name": 1 }).catch(() => {});
+
+      const fetchRows = (nameFilter) => coll.aggregate([
+        { $match: { "Person Name": nameFilter, "ACTIVE / NOT ACTIVE": { $not: /not|inactive/i } } },
+        { $project: {
+            _id: 0, date: "$From",
+            planned: num("$Total TODAY Activities (Planned)"),
+            actual: num("$TOTAL Activities done (Actual)"),
+            late: num("$Activities Late Done"),
+            onTime: num("$Activities done -On time"),
+            pending: num("$PENDING ACTIVITES"),
+        } },
+      ], { allowDiskUse: true }).toArray();
+
+      let rows = await fetchRows(name);
+      if (!rows.length) rows = await fetchRows(new RegExp("^\\s*" + escRe(name) + "\\s*$")); // stray spaces in the sheet data
+
+      const sum = { planned: 0, actual: 0, late: 0, onTime: 0, pending: 0 };
+      let days = 0, first = null, last = null;
+      for (const r of rows) {
+        const t = rowDay(r.date);
+        if ((from != null || to != null) && t == null) continue;     // dashboard drops undated rows when a date filter is on
+        if (from != null && t < from) continue;
+        if (to != null && t > to) continue;
+        days++;
+        if (t != null) { first = first == null ? t : Math.min(first, t); last = last == null ? t : Math.max(last, t); }
+        for (const k of Object.keys(sum)) sum[k] += Number(r[k]) || 0;
+      }
+      res.json({
+        ok: true, name,
+        from: from != null ? dmy(from) : "", to: to != null ? dmy(to) : "",
+        firstDate: first != null ? dmy(first) : "", lastDate: last != null ? dmy(last) : "",
+        days,
+        planned: r2(sum.planned), actual: r2(sum.actual), onTime: r2(sum.onTime),
+        late: r2(sum.late), pending: r2(sum.pending),
+        score: calcScore(sum.planned, sum.onTime, sum.late),
+        completion: sum.planned ? r2((sum.actual / sum.planned) * 100) : 0,
+      });
+    } catch (e) {
+      console.error("employeeScore:", e.message);
+      res.status(500).json({ ok: false, error: "Could not load score." });
     }
   });
 

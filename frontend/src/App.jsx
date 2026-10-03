@@ -1842,68 +1842,61 @@ export default function App() {
           fontSize: 10.5, fontWeight: 700, color: t.sub, letterSpacing: ".8px",
           textTransform: "uppercase", padding: "0 12px 6px", marginTop: "-50px"
         }}>Analytics</span>
-       {NAV.map((n) => {
-  const on = tab === n.id;
+        {NAV.map((n) => {
+          const on = tab === n.id;
 
-  return (
-    <button
-      key={n.id}
-      onClick={() => {
-        setSidebar(false);
-        setNotifOpen(false);
+          return (
+            <button
+              key={n.id}
+              onClick={() => {
+                setSidebar(false);
+                setNotifOpen(false);
+                // Normal dashboard tabs
+                setTab(n.id);
+              }}
+              className="lk-nav-item"
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "11px 14px",
+                border: "none",
+                borderRadius: 10,
+                cursor: "pointer",
+                fontSize: 13.5,
+                fontWeight: on ? 600 : 500,
+                textAlign: "left",
+                background: on ? `${t.primary}14` : "transparent",
+                color: on ? t.primary : t.text
+              }}
+              onMouseEnter={(e) => {
+                if (!on) e.currentTarget.style.background = t.hover;
+              }}
+              onMouseLeave={(e) => {
+                if (!on) e.currentTarget.style.background = "transparent";
+              }}
+            >
+              {on && (
+                <span
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    width: 3,
+                    height: 18,
+                    borderRadius: 3,
+                    background: t.primary
+                  }}
+                />
+              )}
 
-        // Open external link like Employee Form
-        if (n.href) {
-          window.open(n.href, "_blank", "noopener,noreferrer");
-          return;
-        }
-
-        // Normal dashboard tabs
-        setTab(n.id);
-      }}
-      className="lk-nav-item"
-      style={{
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        padding: "11px 14px",
-        border: "none",
-        borderRadius: 10,
-        cursor: "pointer",
-        fontSize: 13.5,
-        fontWeight: on ? 600 : 500,
-        textAlign: "left",
-        background: on ? `${t.primary}14` : "transparent",
-        color: on ? t.primary : t.text
-      }}
-      onMouseEnter={(e) => {
-        if (!on) e.currentTarget.style.background = t.hover;
-      }}
-      onMouseLeave={(e) => {
-        if (!on) e.currentTarget.style.background = "transparent";
-      }}
-    >
-      {on && (
-        <span
-          style={{
-            position: "absolute",
-            left: 0,
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: 3,
-            height: 18,
-            borderRadius: 3,
-            background: t.primary
-          }}
-        />
-      )}
-
-      <n.icon size={18} />
-      {n.label}
-    </button>
-  );
-})}
+              <n.icon size={18} />
+              {n.label}
+            </button>
+          );
+        })}
         <div style={{
           marginTop: "auto", padding: 13, borderRadius: 12, background: t.hover,
           fontSize: 11.5, color: t.sub, lineHeight: 1.5
@@ -2367,7 +2360,7 @@ export default function App() {
                           onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                           onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                           <td className="rank-cell">{i + 1}</td>
-                          <td className="name-cell" title={m.month}>{m.month}</td>
+                          <td className="name-cell" title={g.label}>{g.label}</td>
                           <td style={{
                             padding: "11px 12px", textAlign: "right", fontWeight: 600,
                             background: scoreBg(g.score), color: scoreColor(g.score)
@@ -2402,7 +2395,7 @@ export default function App() {
                           <tr key={m.month} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
                             onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                             onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                            <td className="name-cell" title={y.year}>{y.year}</td>
+                            <td className="name-cell" title={m.month}>{m.month}</td>
                             <td style={{
                               padding: "11px 12px", textAlign: "right", fontWeight: 600,
                               background: scoreBg(m.score), color: scoreColor(m.score)
@@ -2458,7 +2451,7 @@ export default function App() {
                             onClick={() => setSelYear(y.year)}
                             onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                             onMouseLeave={(e) => e.currentTarget.style.background = String(y.year) === String(activeYear) ? `${t.primary}0D` : "transparent"}>
-                            <td className="name-cell" title={g.label}>{y.year}</td>
+                            <td className="name-cell" title={y.year}>{y.year}</td>
                             <td style={{
                               padding: "11px 12px", textAlign: "right", fontWeight: 600,
                               background: scoreBg(y.score), color: scoreColor(y.score)
@@ -2497,6 +2490,30 @@ export default function App() {
               </Panel>
             </div>
           )}
+
+          {tab === "form" && (
+            <div
+              style={{
+                width: "100%",
+                height: "calc(100vh - 120px)",
+                overflow: "hidden",
+                borderRadius: 12,
+                background: "#fff",
+                border: `1px solid ${t.border}`
+              }}
+            >
+              <iframe
+                src={FORM_URL}
+                title="Employee Form"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  border: "none"
+                }}
+              />
+            </div>
+          )}
+
 
           {tab === "scores" && (
             <Panel t={t} title={`Score Summary · ${scoreSummary.length} employees`} style={{ padding: 0 }}>
@@ -2540,7 +2557,7 @@ export default function App() {
                         onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                         onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                         <td className="rank-cell">{i + 1}</td>
-                        <td className="name-cell" title={g.label}>{r.name}</td>
+                        <td className="name-cell" title={r.name}>{r.name}</td>
                         <td style={{ padding: "11px 12px", color: t.sub }}>{r.dept}</td>
                         <td style={{
                           padding: "11px 12px", textAlign: "right", fontWeight: 600,
@@ -2647,7 +2664,7 @@ export default function App() {
                 <div className="lk-scroll" style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead><tr>
-                      {["#", "Full Name", "Username", "Email", "Mobile", "Role", "Status", "Actions"].map((h) => (
+                      {["#", "Full Name", "Username", "Email", "Mobile", "Role", "Status", "Actions"].map((h, i) => (
 
                         <th
                           key={h}
