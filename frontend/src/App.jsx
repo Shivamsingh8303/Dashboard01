@@ -753,7 +753,7 @@ function LoginPage({ onLogin }) {
       }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginBottom: 10 }}>
           <img src="/bhas2.png" alt="logo" style={{ height: 150, width: "auto", objectFit: "contain", display: "block", marginTop: "-30px" }} />
-          <div style={{ fontWeight: 700, fontSize: 19, color: t.text, letterSpacing: "-.4px", marginTop: "-30px"}}>Bhaskar Employee Score</div>
+          <div style={{ fontWeight: 700, fontSize: 19, color: t.text, letterSpacing: "-.4px", marginTop: "-30px" }}>Bhaskar Employee Score</div>
         </div>
         <p style={{ margin: "0 0 20px", color: t.sub, fontSize: 13.5 }}>
           {mode === "login" ? "Welcome back — sign in to continue" : "Create your account"}
@@ -1560,8 +1560,8 @@ export default function App() {
             <tr key={r.id} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
               onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
               onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-              <td style={{ padding: "11px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
-              <td style={{ padding: "11px 12px", fontWeight: 600 }}>{r.name}</td>
+              <td className="rank-cell">{i + 1}</td>
+              <td className="name-cell" title={g.label}>{r.name}</td>
               <td style={{ padding: "11px 12px", color: t.sub }}>{r.dept}</td>
               <td style={{
                 padding: "11px 12px", textAlign: "right", fontWeight: 600,
@@ -1757,7 +1757,75 @@ export default function App() {
           .lk-header-actions button{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;padding:0!important}
           .lk-kpi-card{padding:13px!important}
         }
-      `}</style>
+        .lk-score-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lk-score-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.lk-score-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 11px 12px;
+  background: #f1f3f4;
+  color: #5f6368;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 2px solid #dadce0;
+}
+
+.lk-score-table thead th.num-head {
+  text-align: right;
+}
+
+.lk-score-table tbody td {
+  padding: 11px 12px;
+  border-top: 1px solid #dadce0;
+  vertical-align: middle;
+}
+
+.lk-score-table .rank-cell {
+  text-align: left;
+  font-weight: 600;
+}
+
+.lk-score-table .name-cell {
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lk-score-table .score-cell,
+.lk-score-table .num-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (max-width: 680px) {
+  .lk-score-table {
+    min-width: 720px;
+  }
+
+  .lk-score-table thead th,
+  .lk-score-table tbody td {
+    padding: 10px;
+  }
+}`}</style>
 
       {/* SIDEBAR */}
       <aside className={`lk-sidebar ${sidebar ? "open" : ""}`} style={{
@@ -1767,10 +1835,10 @@ export default function App() {
         overflowY: "auto", overflowX: "hidden", zIndex: 45,
         WebkitOverflowScrolling: "touch"
       }}>
-        <img src="/bhas2.png" alt="logo" style={{ height: 170, width: "auto", objectFit: "contain", display: "block", marginBottom: 8 , marginTop: "-40px" }} />
+        <img src="/bhas2.png" alt="logo" style={{ height: 170, width: "auto", objectFit: "contain", display: "block", marginBottom: 8, marginTop: "-40px" }} />
         <span style={{
           fontSize: 10.5, fontWeight: 700, color: t.sub, letterSpacing: ".8px",
-          textTransform: "uppercase", padding: "0 12px 6px" , marginTop: "-50px"
+          textTransform: "uppercase", padding: "0 12px 6px", marginTop: "-50px"
         }}>Analytics</span>
         {NAV.map((n) => {
           const on = tab === n.id;
@@ -2102,7 +2170,7 @@ export default function App() {
                       {deptAgg.map((d, i) => (
                         <tr key={d.dept} style={{ borderTop: `1px solid ${t.border}` }}>
                           <td style={{ padding: "11px 12px", fontWeight: 600, color: t.sub }}>{i + 1}</td>
-                          <td style={{ padding: "11px 12px", fontWeight: 600 }}>{d.dept}</td>
+                          <td className="name-cell" title={g.label}>{d.dept}</td>
                           <td style={{ padding: "11px 12px", textAlign: "right" }}>{fmt(d.count)}</td>
                           <td style={{
                             padding: "11px 12px", textAlign: "right", fontWeight: 600,
@@ -2254,8 +2322,8 @@ export default function App() {
                         <tr key={`${g.label}-${i}`} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
                           onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                           onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                          <td style={{ padding: "11px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
-                          <td style={{ padding: "11px 12px", fontWeight: 600 }}>{g.label}</td>
+                          <td className="rank-cell">{i + 1}</td>
+                          <td className="name-cell" title={g.label}>{g.label}</td>
                           <td style={{
                             padding: "11px 12px", textAlign: "right", fontWeight: 600,
                             background: scoreBg(g.score), color: scoreColor(g.score)
@@ -2290,7 +2358,7 @@ export default function App() {
                           <tr key={m.month} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
                             onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                             onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                            <td style={{ padding: "11px 12px", fontWeight: 600 }}>{m.month}</td>
+                            <td className="name-cell" title={g.label}>{m.month}</td>
                             <td style={{
                               padding: "11px 12px", textAlign: "right", fontWeight: 600,
                               background: scoreBg(m.score), color: scoreColor(m.score)
@@ -2325,8 +2393,9 @@ export default function App() {
           {tab === "yearly" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <Panel t={t} title={`Year-over-Year Summary · ${YEARLY.length} years`} style={{ padding: 0 }}>
-                <div className="lk-scroll" style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+
+                <div className="lk-score-table-wrap">
+                  <table className="lk-score-table">
                     <thead><tr>
                       <Th>Year</Th><Th align="right">Score</Th>
                       <Th align="right">Productivity %</Th><Th align="right">Activities Done</Th>
@@ -2345,7 +2414,7 @@ export default function App() {
                             onClick={() => setSelYear(y.year)}
                             onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                             onMouseLeave={(e) => e.currentTarget.style.background = String(y.year) === String(activeYear) ? `${t.primary}0D` : "transparent"}>
-                            <td style={{ padding: "11px 12px", fontWeight: 600 }}>{y.year}</td>
+                            <td className="name-cell" title={g.label}>{y.year}</td>
                             <td style={{
                               padding: "11px 12px", textAlign: "right", fontWeight: 600,
                               background: scoreBg(y.score), color: scoreColor(y.score)
@@ -2426,8 +2495,8 @@ export default function App() {
                       <tr key={`${r.name}-${i}`} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
                         onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                         onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                        <td style={{ padding: "11px 12px", color: t.sub, fontWeight: 600 }}>{i + 1}</td>
-                        <td style={{ padding: "11px 12px", fontWeight: 600 }}>{r.name}</td>
+                        <td className="rank-cell">{i + 1}</td>
+                        <td className="name-cell" title={g.label}>{r.name}</td>
                         <td style={{ padding: "11px 12px", color: t.sub }}>{r.dept}</td>
                         <td style={{
                           padding: "11px 12px", textAlign: "right", fontWeight: 600,
@@ -2535,10 +2604,13 @@ export default function App() {
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead><tr>
                       {["#", "Full Name", "Username", "Email", "Mobile", "Role", "Status", "Actions"].map((h) => (
-                        <th key={h} style={{
-                          padding: "11px 12px", textAlign: "left", fontSize: 12, fontWeight: 600,
-                          color: t.sub, position: "sticky", top: 0, background: t.hover, whiteSpace: "nowrap"
-                        }}>{h}</th>
+
+                        <th
+                          key={h}
+                          className={i >= 2 ? "num-head" : ""}
+                        >
+                          {h}
+                        </th>
                       ))}
                     </tr></thead>
                     <tbody>

@@ -5,14 +5,12 @@ const SHEET_ID = "1OUGIjQle3Gx1cQcRJZ4a6UpsxfRK0xUGJoT889LSpOM";
 const MONGO_URI = "mongodb://shivam_db_user:iksRLdzPvvV68rE4@ac-w19e57c-shard-00-00.vigjb5y.mongodb.net:27017,ac-w19e57c-shard-00-01.vigjb5y.mongodb.net:27017,ac-w19e57c-shard-00-02.vigjb5y.mongodb.net:27017/?ssl=true&replicaSet=atlas-695gxp-shard-0&authSource=admin&appName=Cluster0";
 
 async function main() {
-  // Connect to Google Sheets
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
     scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
   });
   const sheets = google.sheets({ version: "v4", auth });
 
-  // Read the DATA sheet
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
     range: "DATA!A1:Q",
@@ -20,21 +18,28 @@ async function main() {
   const rows = res.data.values;
   const headers = rows[0];
 
-  // Turn rows into documents
+  // Column P = "ACTIVE / NOT ACTIVE" -> index 15
+  const STATUS_IDX = headers.findIndex(h => h && h.toUpperCase().includes("ACTIVE"));
+  const statusIdx = STATUS_IDX === -1 ? 15 : STATUS_IDX;
+
   const docs = rows.slice(1)
-    .filter(r => r[1])  // must have Person Name
+    .filter(r => {
+      if (!r[1]) return false;                       // must have Person Name
+      const status = (r[statusIdx] || "").trim().toUpperCase();
+      return status === "ACTIVE" || status === "#N/A";  // keep Active + #N/A only
+    })
     .map(r => {
       const doc = {};
       headers.forEach((h, i) => { doc[h] = r[i] || null; });
       return doc;
     });
 
-  // Connect to MongoDB
+  console.log(`Rows to sync: ${docs.length}`);
+
   const client = new MongoClient(MONGO_URI);
   await client.connect();
   const col = client.db("autoscore").collection("scoring");
 
-  // Clear old data, then insert fresh (prevents duplicates)
   await col.deleteMany({});
 
   const BATCH = 1000;

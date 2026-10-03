@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { MongoClient } from "mongodb";
+import compression from "compression";
+import { registerAssessmentRoutes } from "./assessments.js";
 
 /* ----------------------------------------------------------------
    CONFIG — set these as environment variables in production.
@@ -20,24 +22,24 @@ const USERS_COL = "users";   // login/admin accounts
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-app.use(cors());                       // allow the React app to call this
+app.use(compression());                // MUST be before routes — shrinks JSON ~90%
+app.use(cors());
 app.use(express.json({ limit: "20mb" }));
 
-const client = new MongoClient(MONGO_URI);
+const client = new MongoClient(MONGO_URI, {
+  compressors: ["zstd"],
+  maxPoolSize: 20,
+});
 let db;
+registerAssessmentRoutes(app, client, DB_NAME, SCORES_COL); // employee form -> MongoDB "assessments"
 
 /* ----------------------------------------------------------------
    HELPERS
 ----------------------------------------------------------------- */
-// Convert a raw Mongo "scores" document (your sheet column names with
-// spaces/caps) into the compact object the React frontend expects.
-// Frontend normalizeRow reads these exact keys:
-//   date, name, dept, planned, actual, late, onTime, pending,
-//   score, week, monthYear, quarter, active, year
 // Turn a raw "From" value into a clean DD/MM/YYYY string. Never use the
 // "Date" column (it was just a day-count 1,2,3...). Returns "" if unusable.
-function cleanFromDate(doc) {
-  const v = doc["From"];
+// Takes the VALUE (not the doc) — the $project stage already extracted it.
+function cleanDate(v) {
   if (v == null || v === "") return "";
   // Already a JS Date (Mongo ISODate)
   if (v instanceof Date) {
@@ -55,25 +57,6 @@ function cleanFromDate(doc) {
   return s; // leave as-is; frontend parseDate will validate
 }
 
-function toFrontendRow(doc) {
-  return {
-    date: cleanFromDate(doc),                          // "From" only — the REAL date (DD/MM/YYYY)
-    name: doc["Person Name"] ?? "",
-    dept: doc["Department"] ?? "",
-    planned: doc["Total TODAY Activities (Planned)"] ?? 0,
-    actual: doc["TOTAL Activities done (Actual)"] ?? 0,
-    late: doc["Activities Late Done"] ?? 0,
-    onTime: doc["Activities done -On time"] ?? 0,
-    pending: doc["PENDING ACTIVITES"] ?? 0,
-    score: doc["SCORING"] ?? 0,
-    week: doc["Week"] ?? "",
-    monthYear: doc["Month & Year"] ?? "",
-    quarter: doc["Quarter"] ?? "",
-    active: doc["ACTIVE / NOT ACTIVE"] ?? "",
-    year: doc["Year"] ?? "",
-  };
-}
-
 // Strip Mongo internals before sending a user object to the frontend.
 function safeUser(u) {
   if (!u) return null;
@@ -84,19 +67,46 @@ function safeUser(u) {
     username: u.username || "",
     role: u.role || "Employee",
     status: u.status || "Active",
-    dept: u.dept || "", 
+    dept: u.dept || "",
   };
 }
 
 /* ----------------------------------------------------------------
    DATA ENDPOINT — feeds the whole dashboard
+   $match  = skip inactive at the DB level (was isInactive() in Node)
+   $project = reshape to frontend keys at the DB level (was toFrontendRow)
 ----------------------------------------------------------------- */
 app.post("/getData", async (req, res) => {
   try {
-    const docs = await db.collection(SCORES_COL).find({}).toArray();
-    console.log("DOCS",docs);
-    const rows = docs.map(toFrontendRow);
-    console.log("rows",rows)
+    const t0 = Date.now();
+    const rows = await db.collection(SCORES_COL).aggregate([
+      // Skip INACTIVE / NOT ACTIVE employees — keep Active, #N/A, and blank.
+      { $match: { "ACTIVE / NOT ACTIVE": { $not: /not|inactive/i } } },
+      // Send only the 14 fields the frontend actually reads.
+     {
+  $project: {
+    _id: 0,
+    date: "$From",
+    name: "$Person Name",
+    dept: "$Department",
+    planned: { $convert: { input: "$Total TODAY Activities (Planned)", to: "double", onError: 0, onNull: 0 } },
+    actual:  { $convert: { input: "$TOTAL Activities done (Actual)",   to: "double", onError: 0, onNull: 0 } },
+    late:    { $convert: { input: "$Activities Late Done",             to: "double", onError: 0, onNull: 0 } },
+    onTime:  { $convert: { input: "$Activities done -On time",         to: "double", onError: 0, onNull: 0 } },
+    pending: { $convert: { input: "$PENDING ACTIVITES",                to: "double", onError: 0, onNull: 0 } },
+    score:   { $convert: { input: "$SCORING",                          to: "double", onError: 0, onNull: 0 } },
+    week: "$Week",
+    monthYear: "$Month & Year",
+    quarter: "$Quarter",
+    active: "$ACTIVE / NOT ACTIVE",
+    year: "$Year",
+  },
+},
+    ], { allowDiskUse: true }).toArray();
+
+    for (const r of rows) r.date = cleanDate(r.date);
+
+    console.log(`getData: ${rows.length} rows in ${Date.now() - t0}ms`);
     res.json({ ok: true, rows });
   } catch (e) {
     res.json({ ok: false, error: e.message });
@@ -232,10 +242,17 @@ async function seedAdmin() {
   }
 }
 
+async function ensureIndexes() {
+  // Makes the $match in /getData an index scan instead of a full collection scan.
+  await db.collection(SCORES_COL).createIndex({ "ACTIVE / NOT ACTIVE": 1 });
+  await db.collection(USERS_COL).createIndex({ username: 1 }, { unique: true });
+}
+
 client.connect().then(async () => {
   db = client.db(DB_NAME);
   await seedAdmin();
+  await ensureIndexes();
   app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
 }).catch((e) => {
   console.error("Mongo connection failed:", e.message);
-});  
+});
