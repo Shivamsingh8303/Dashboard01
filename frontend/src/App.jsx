@@ -28,6 +28,7 @@ const API_URL = (
   import.meta.env.VITE_API_URL ||
   "http://localhost:3000"
 ).replace(/\/$/, "");
+const FORM_URL = (import.meta.env.VITE_FORM_URL || "https://script.google.com/a/macros/bhaskarsilkmills.in/s/AKfycbxnMo8AIgEizuCRtoH4bQdza-nFcepsfgn7ayu-u7tdC1ozbwyr6O7oZW9iNz5ZQBxk/exec").trim();
 
 // async function api(action, payload = {}) {
 //   try {
@@ -1516,6 +1517,7 @@ export default function App() {
     { id: "yearly", label: "Yearly Analytics", icon: CalendarRange },
     { id: "scores", label: "Score Summary", icon: Award },
     { id: "board", label: "Leaderboard", icon: Trophy },
+    { id: "form", label: "Employee Form", icon: FileText, href: FORM_URL },
     ...(isAdmin ? [{ id: "admin", label: "User Management", icon: Settings }] : []),
   ];
 
