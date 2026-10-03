@@ -1517,7 +1517,7 @@ export default function App() {
     { id: "yearly", label: "Yearly Analytics", icon: CalendarRange },
     { id: "scores", label: "Score Summary", icon: Award },
     { id: "board", label: "Leaderboard", icon: Trophy },
-    { id: "form", label: "Employee Form", icon: FileText, href: FORM_URL },
+    { id: "form", label: "Employee Form", icon: FileText, href: "https://script.google.com/a/macros/bhaskarsilkmills.in/s/AKfycbxnMo8AIgEizuCRtoH4bQdza-nFcepsfgn7ayu-u7tdC1ozbwyr6O7oZW9iNz5ZQBxk/exec" },
     ...(isAdmin ? [{ id: "admin", label: "User Management", icon: Settings }] : []),
   ];
 
@@ -1842,26 +1842,68 @@ export default function App() {
           fontSize: 10.5, fontWeight: 700, color: t.sub, letterSpacing: ".8px",
           textTransform: "uppercase", padding: "0 12px 6px", marginTop: "-50px"
         }}>Analytics</span>
-        {NAV.map((n) => {
-          const on = tab === n.id;
-          return (
-            <button key={n.id} onClick={() => { setTab(n.id); setSidebar(false); setNotifOpen(false); }} className="lk-nav-item" style={{
-              position: "relative", display: "flex", alignItems: "center", gap: 12, padding: "11px 14px",
-              border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13.5,
-              fontWeight: on ? 600 : 500, textAlign: "left",
-              background: on ? `${t.primary}14` : "transparent",
-              color: on ? t.primary : t.text
-            }}
-              onMouseEnter={(e) => { if (!on) e.currentTarget.style.background = t.hover; }}
-              onMouseLeave={(e) => { if (!on) e.currentTarget.style.background = "transparent"; }}>
-              {on && <span style={{
-                position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
-                width: 3, height: 18, borderRadius: 3, background: t.primary
-              }} />}
-              <n.icon size={18} /> {n.label}
-            </button>
-          );
-        })}
+       {NAV.map((n) => {
+  const on = tab === n.id;
+
+  return (
+    <button
+      key={n.id}
+      onClick={() => {
+        setSidebar(false);
+        setNotifOpen(false);
+
+        // Open external link like Employee Form
+        if (n.href) {
+          window.open(n.href, "_blank", "noopener,noreferrer");
+          return;
+        }
+
+        // Normal dashboard tabs
+        setTab(n.id);
+      }}
+      className="lk-nav-item"
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "11px 14px",
+        border: "none",
+        borderRadius: 10,
+        cursor: "pointer",
+        fontSize: 13.5,
+        fontWeight: on ? 600 : 500,
+        textAlign: "left",
+        background: on ? `${t.primary}14` : "transparent",
+        color: on ? t.primary : t.text
+      }}
+      onMouseEnter={(e) => {
+        if (!on) e.currentTarget.style.background = t.hover;
+      }}
+      onMouseLeave={(e) => {
+        if (!on) e.currentTarget.style.background = "transparent";
+      }}
+    >
+      {on && (
+        <span
+          style={{
+            position: "absolute",
+            left: 0,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 3,
+            height: 18,
+            borderRadius: 3,
+            background: t.primary
+          }}
+        />
+      )}
+
+      <n.icon size={18} />
+      {n.label}
+    </button>
+  );
+})}
         <div style={{
           marginTop: "auto", padding: 13, borderRadius: 12, background: t.hover,
           fontSize: 11.5, color: t.sub, lineHeight: 1.5
@@ -2360,7 +2402,7 @@ export default function App() {
                           <tr key={m.month} className="lk-row" style={{ borderTop: `1px solid ${t.border}` }}
                             onMouseEnter={(e) => e.currentTarget.style.background = t.hover}
                             onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                            <td className="name-cell" title={g.label}>{m.month}</td>
+                            <td className="name-cell" title={y.year}>{y.year}</td>
                             <td style={{
                               padding: "11px 12px", textAlign: "right", fontWeight: 600,
                               background: scoreBg(m.score), color: scoreColor(m.score)
