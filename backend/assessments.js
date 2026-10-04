@@ -61,6 +61,20 @@ const dmy = (t) => {
   return `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}`;
 };
 const r2 = (n) => Math.round(n * 100) / 100;
+// Score snapshot sent along with an assessment (Apps Script fetched it from /employeeScore) - sanitised, never trusted blindly
+function cleanScore(sc) {
+  if (!sc || typeof sc !== "object") return null;
+  const n = (v) => { const x = Number(v); return Number.isFinite(x) ? r2(x) : 0; };
+  const d = (v) => (/^\d{2}\/\d{2}\/\d{4}$/.test(String(v || "")) ? String(v) : "");
+  return {
+    from: d(sc.from), to: d(sc.to),
+    planned: n(sc.planned), actual: n(sc.actual), onTime: n(sc.onTime),
+    late: n(sc.late), pending: n(sc.pending),
+    score: n(sc.score), completion: n(sc.completion),
+    days: Math.max(0, Math.trunc(Number(sc.days)) || 0),
+    savedAt: new Date(),
+  };
+}
 // Looker Studio / dashboard formula
 const calcScore = (planned, onTime, late) =>
   planned ? Math.round(((onTime + late * 0.5) / planned - 1) * 10000) / 100 : 0;
@@ -93,6 +107,7 @@ function validate(b) {
       performancePct: Math.round((total / (CRITERIA.length * 5)) * 1000) / 10,
       strengths: str, improvements: imp, overallRemarks: overall,
       additionalComments: txt(b.add, LIMITS.add),
+      scoring: cleanScore(b.sc),   // dashboard score for the chosen date range (null if it could not be fetched)
       source: "assessment-form",
       updatedAt: new Date(),
     },
