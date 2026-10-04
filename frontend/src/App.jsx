@@ -96,6 +96,16 @@ const DAY = 86400000;
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+// Score filter bands - applied to each employee's overall score for the selected filters/date range.
+// Closer to 0 = better. Scores above 0 count as "Best".
+const SCORE_BANDS = [
+  { id: "b1", label: "0 to -10 (Best)",    test: (s) => s >= -10 },
+  { id: "b2", label: "-10 to -30",         test: (s) => s < -10 && s >= -30 },
+  { id: "b3", label: "-30 to -60",         test: (s) => s < -30 && s >= -60 },
+  { id: "b4", label: "-60 to -100",        test: (s) => s < -60 && s >= -100 },
+  { id: "b5", label: "Below -100 (Worst)", test: (s) => s < -100 },
+];
+
 // Build monthly trend from a (date-filtered) set of rows.
 function monthlyFrom(rows) {
   const map = {};
@@ -1091,6 +1101,7 @@ export default function App() {
   // filters
   const [fDept, setFDept] = useState([]);
   const [fStatus, setFStatus] = useState([]);
+  const [fScore, setFScore] = useState(""); // "" = All Scores, otherwise a SCORE_BANDS id
   const [dateRange, setDateRange] = useState({ start: null, end: null });
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState({ key: "score", dir: "desc" });
@@ -1156,7 +1167,7 @@ export default function App() {
   const filtered = useMemo(() => {
     const s = dateRange.start ? new Date(dateRange.start.getFullYear(), dateRange.start.getMonth(), dateRange.start.getDate()) : null;
     const e = dateRange.end ? new Date(dateRange.end.getFullYear(), dateRange.end.getMonth(), dateRange.end.getDate(), 23, 59, 59) : null;
-    return rows.filter((r) => {
+    const base = rows.filter((r) => {
       const validDate = r.date instanceof Date && !isNaN(r.date);
       return (!fDept.length || fDept.includes(r.dept)) &&
         (!fStatus.length || fStatus.includes(r.active)) &&
@@ -1164,7 +1175,17 @@ export default function App() {
         (!search || r.name.toLowerCase().includes(search.toLowerCase()) ||
           r.dept.toLowerCase().includes(search.toLowerCase()));
     });
-  }, [rows, fDept, fStatus, dateRange, search]);
+    // Score filter: score is per employee (same formula as the table), so compute it per person first.
+    const band = SCORE_BANDS.find((b) => b.id === fScore);
+    if (!band) return base;
+    const agg = {};
+    base.forEach((r) => {
+      const a = (agg[r.name] ||= { planned: 0, onTime: 0, late: 0 });
+      a.planned += r.planned; a.onTime += r.onTime; a.late += r.late;
+    });
+    const keep = new Set(Object.keys(agg).filter((k) => band.test(calcScore(agg[k].planned, agg[k].onTime, agg[k].late))));
+    return base.filter((r) => keep.has(r.name));
+  }, [rows, fDept, fStatus, fScore, dateRange, search]);
 
   // Per-person aggregation (rows are daily records) for table + leaderboard
   const empAgg = useMemo(() => {
@@ -1192,7 +1213,7 @@ export default function App() {
     return arr;
   }, [empAgg, sort]);
 
-  useEffect(() => { setVisibleCount(25); if (scrollRef.current) scrollRef.current.scrollTop = 0; }, [fDept, fStatus, search, sort, dateRange]);
+  useEffect(() => { setVisibleCount(25); if (scrollRef.current) scrollRef.current.scrollTop = 0; }, [fDept, fStatus, fScore, search, sort, dateRange]);
 
   const MONTHLY = useMemo(() => monthlyFrom(filtered), [filtered]);
   const YEARLY = useMemo(() => yearlyFrom(filtered), [filtered]);
@@ -2133,7 +2154,7 @@ export default function App() {
             <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: t.sub, fontWeight: 500 }}>
               <Filter size={15} /> Filters
               {(() => {
-                const n = fDept.length + fStatus.length + (search ? 1 : 0) + (dateRange.start ? 1 : 0);
+                const n = fDept.length + fStatus.length + (fScore ? 1 : 0) + (search ? 1 : 0) + (dateRange.start ? 1 : 0);
                 return n ? <span style={{
                   marginLeft: 2, minWidth: 18, height: 18, borderRadius: 9, padding: "0 5px",
                   background: t.primary, color: "#fff", fontSize: 11, fontWeight: 700,
@@ -2143,6 +2164,14 @@ export default function App() {
             </span>
             <MultiSelect t={t} label="Department" options={DEPARTMENTS} selected={fDept} setSelected={setFDept} />
             <MultiSelect t={t} label="Status" options={["Active", "Inactive", "#N/A", "Blank"]} selected={fStatus} setSelected={setFStatus} />
+            <select value={fScore} onChange={(e) => setFScore(e.target.value)} title="Filter employees by score"
+              style={{
+                padding: "9px 14px", borderRadius: 22, border: `1px solid ${t.border}`, background: t.card,
+                color: t.text, fontSize: 13, fontWeight: 500, cursor: "pointer", outline: "none"
+              }}>
+              <option value="">All Scores</option>
+              {SCORE_BANDS.map((b) => <option key={b.id} value={b.id}>{b.label}</option>)}
+            </select>
             <DateRangePicker t={t} range={dateRange} setRange={setDateRange} min={dataDateRange.min} max={dataDateRange.max} />
             {/* NEW: density toggle */}
             <button onClick={() => setDensity(density === "comfortable" ? "compact" : "comfortable")}
@@ -2153,8 +2182,8 @@ export default function App() {
               }}>
               <Rows3 size={15} /> {density === "comfortable" ? "Compact" : "Comfortable"}
             </button>
-            {(fDept.length || fStatus.length || search || dateRange.start) ? (
-              <button onClick={() => { setFDept([]); setFStatus([]); setSearch(""); setDateRange({ start: null, end: null }); }} style={{
+            {(fDept.length || fStatus.length || fScore || search || dateRange.start) ? (
+              <button onClick={() => { setFDept([]); setFStatus([]); setFScore(""); setSearch(""); setDateRange({ start: null, end: null }); }} style={{
                 display: "flex", alignItems: "center", gap: 5, padding: "9px 14px", borderRadius: 22,
                 border: "none", background: `${t.danger}14`, color: t.danger, fontSize: 13,
                 fontWeight: 600, cursor: "pointer"
