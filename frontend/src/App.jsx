@@ -773,6 +773,9 @@ function LoginPage({ onLogin }) {
               {m === "login" ? "Sign In" : "Sign Up"}
             </button>
           ))}
+                  <div style={{ textAlign: "center", marginTop: 18, fontSize: 12, color: t.sub }}>
+          Made by <b>Shivam Sengar</b>
+        </div>
         </div>
 
         {err && (
@@ -1908,12 +1911,14 @@ export default function App() {
             background: t.success, marginRight: 6, verticalAlign: "middle"
           }} />
           Live · Database, auto-refresh every 5 min.
+
         </div>
         <div style={{
           marginTop: "auto", padding: 13, borderRadius: 12, background: t.hover,
           fontSize: 11.5, color: t.sub, lineHeight: 1.5
         }}>
-          © 2026 Bhaskar Silk Mills Pvt. Ltd. All Rights Reserved.
+                    © 2026 Bhaskar Silk Mills Pvt. Ltd. All Rights Reserved.
+          <div style={{ marginTop: 6, fontWeight: 600, color: t.primary }}>Made by Shivam Sengar</div>
         </div>
       </aside>
       {sidebar && <div onClick={() => setSidebar(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", backdropFilter: "blur(2px)", zIndex: 55 }} />}
