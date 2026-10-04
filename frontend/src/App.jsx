@@ -1573,7 +1573,7 @@ export default function App() {
 
   // Renders an Employee-Performance-style table for a given list (period-scoped).
   const empDetailTable = (list) => (
-    <div className="lk-scroll" style={{ overflowX: "auto" }}>
+    <div className="lk-table-scroll">
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
         <thead><tr>
           {["Rank", "Employee", "Department", "Score", "Planned", "Actual", "On-Time", "Late", "Pending", "Status"].map((h, i) => (
@@ -1857,7 +1857,38 @@ export default function App() {
   .lk-score-table tbody td {
     padding: 10px;
   }
-}`}</style>
+    .lk-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #f1f3f4;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 640px) {
+  .lk-table-scroll {
+    max-height: 65vh;
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+
+  .lk-table-scroll table {
+    min-width: 720px;
+  }
+
+  .lk-table-scroll thead th {
+    top: 0;
+    z-index: 50;
+  }
+}
+}
+</style>
+
+}`
+
+}
+</style>
 
       {/* SIDEBAR */}
       <aside className={`lk-sidebar ${sidebar ? "open" : ""}`} style={{
@@ -2236,7 +2267,7 @@ export default function App() {
           {tab === "dept" && (
             <>
               <Panel t={t} title="Department Performance Ranking" style={{ padding: 0 }}>
-                <div className="lk-scroll" style={{ overflowX: "auto" }}>
+                <div className="lk-table-scroll">
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead><tr>
                       <Th>Rank</Th><Th>Department</Th><Th align="right">Records</Th>
@@ -2379,7 +2410,7 @@ export default function App() {
                     <option value="year">Yearly Score</option>
                   </select>
                 </div>}>
-                <div className="lk-scroll" style={{ overflowX: "auto" }}>
+                <div className="lk-table-scroll">
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead><tr>
                       {["Rank", scoringView === "doer" ? "Doer Name" : scoringView === "dept" ? "Department" : scoringView === "week" ? "Week" : scoringView === "month" ? "Month & Year" : "Year",
@@ -2420,7 +2451,7 @@ export default function App() {
               </Panel>
 
               <Panel t={t} title={`Monthly Breakdown · ${MONTHLY.length} months`} style={{ padding: 0 }}>
-                <div className="lk-scroll" style={{ overflowX: "auto" }}>
+                <div className="lk-table-scroll">
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead><tr>
                       <Th>Month</Th><Th align="right">Score</Th>
@@ -2471,8 +2502,8 @@ export default function App() {
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <Panel t={t} title={`Year-over-Year Summary · ${YEARLY.length} years`} style={{ padding: 0 }}>
 
-                <div className="lk-score-table-wrap">
-                  <table className="lk-score-table">
+                <div className="lk-table-scroll">
+                <table className="lk-score-table">
                     <thead><tr>
                       <Th>Year</Th><Th align="right">Score</Th>
                       <Th align="right">Productivity %</Th><Th align="right">Activities Done</Th>
@@ -2576,7 +2607,7 @@ export default function App() {
 
           {tab === "scores" && (
             <Panel t={t} title={`Score Summary · ${scoreSummary.length} employees`} style={{ padding: 0 }}>
-              <div className="lk-scroll" style={{ overflowX: "auto" }}>
+              <div className="lk-table-scroll">
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead><tr>
                     {[
@@ -2720,7 +2751,7 @@ export default function App() {
                     background: `${t.primary}14`, color: t.primary
                   }}>{adminMsg}</div>
                 )}
-                <div className="lk-scroll" style={{ overflowX: "auto" }}>
+                <div className="lk-table-scroll">
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead><tr>
                       {["#", "Full Name", "Username", "Email", "Mobile", "Role", "Status", "Actions"].map((h, i) => (
