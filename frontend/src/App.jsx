@@ -1645,250 +1645,802 @@ export default function App() {
       fontFamily: "'Inter','Google Sans','Segoe UI',Roboto,system-ui,sans-serif",
       transition: "background .35s cubic-bezier(.4,0,.2,1)", WebkitFontSmoothing: "antialiased"
     }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
-        @keyframes popIn{0%{opacity:0;transform:translateY(8px) scale(.98)}100%{opacity:1;transform:none}}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        *{box-sizing:border-box}
-        html,body,#root{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}
-        input,button{font-family:inherit}
-        button{transition:background .2s ease,color .2s ease,transform .12s ease,box-shadow .2s ease,opacity .2s ease}
-        button:active{transform:scale(.97)}
-        .lk-field:focus{box-shadow:0 0 0 3px ${t.primary}33!important;border-color:${t.primary}!important}
-        ::selection{background:${t.primary}33}
-        ::-webkit-scrollbar{width:10px;height:10px}
-        ::-webkit-scrollbar-track{background:transparent}
-        ::-webkit-scrollbar-thumb{background:${t.border};border-radius:10px;border:2px solid transparent;background-clip:padding-box}
-        ::-webkit-scrollbar-thumb:hover{background:${t.sub}}
-        .lk-scroll{scrollbar-width:thin;scrollbar-color:${t.border} transparent}
-        .lk-scroll::-webkit-scrollbar{width:10px;height:10px}
-        .lk-scroll::-webkit-scrollbar-track{background:transparent}
-        .lk-scroll::-webkit-scrollbar-thumb{background:${t.border};border-radius:10px;border:2px solid transparent;background-clip:padding-box}
-        .lk-scroll::-webkit-scrollbar-thumb:hover{background:${t.primary}}
-      .lk-scroll thead th{position:sticky;top:0;z-index:2;backdrop-filter:blur(6px)}
-        @media(max-width:860px){.lk-scroll thead th{top:58px!important;z-index:20!important}}
-        .lk-row{transition:background .15s ease}
-        /* UI upgrade: subtle table zebra + crisper hover */
-        .lk-scroll tbody tr:nth-child(even){background:${dark ? "rgba(255,255,255,.015)" : "rgba(60,64,67,.012)"}}
-        .lk-scroll tbody tr:hover{background:${t.hover}!important}
-        /* UI upgrade: nav items get a smooth slide on hover */
-        .lk-nav-item{transition:background .18s ease,color .18s ease,padding-left .18s ease}
-        .lk-nav-item:hover{padding-left:18px!important}
-        /* UI upgrade: popovers animate in */
-        .lk-daterange-pop,.lk-pop{animation:popIn .18s cubic-bezier(.4,0,.2,1) both}
-        .lk-mobtog{display:none}
-        .lk-header-actions{min-width:0}
-        .lk-panel,.lk-kpi-card,.lk-chart-grid,.lk-ai-grid{min-width:0}
-        .lk-panel-body{min-width:0}
-        .lk-scroll{max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain}
-        .lk-scroll table{min-width:max-content}
-        .lk-chart-grid > *, .lk-ai-grid > *{min-width:0}
-        .lk-period-picker{max-width:100%;overflow-x:auto;flex-wrap:nowrap!important;padding-bottom:3px;scrollbar-width:none}
-        .lk-period-picker::-webkit-scrollbar{display:none}
-        /* NEW: table density toggle */
-        .lk-density-compact table td, .lk-density-compact table th{padding-top:5px!important;padding-bottom:5px!important;font-size:12px!important}
-        .lk-density-compact .lk-row td{padding-top:5px!important;padding-bottom:5px!important}
+     <style>{`
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-        /* Sidebar becomes an off-canvas drawer on tablet/mobile. */
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+  @keyframes popIn{0%{opacity:0;transform:translateY(8px) scale(.98)}100%{opacity:1;transform:none}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  *{box-sizing:border-box}
+
+  html,body,#root{
+    margin:0;
+    padding:0;
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  input,button{font-family:inherit}
+
+  button{
+    transition:
+      background .2s ease,
+      color .2s ease,
+      transform .12s ease,
+      box-shadow .2s ease,
+      opacity .2s ease;
+  }
+
+  button:active{transform:scale(.97)}
+
+  .lk-field:focus{
+    box-shadow:0 0 0 3px ${t.primary}33!important;
+    border-color:${t.primary}!important;
+  }
+
+  ::selection{background:${t.primary}33}
+
+  ::-webkit-scrollbar{
+    width:10px;
+    height:10px;
+  }
+
+  ::-webkit-scrollbar-track{
+    background:transparent;
+  }
+
+  ::-webkit-scrollbar-thumb{
+    background:${t.border};
+    border-radius:10px;
+    border:2px solid transparent;
+    background-clip:padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover{
+    background:${t.sub};
+  }
+
+  /* =====================================================
+     EXISTING SCROLL
+     ===================================================== */
+
+  .lk-scroll{
+    scrollbar-width:thin;
+    scrollbar-color:${t.border} transparent;
+    max-width:100%;
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-inline:contain;
+  }
+
+  .lk-scroll::-webkit-scrollbar{
+    width:10px;
+    height:10px;
+  }
+
+  .lk-scroll::-webkit-scrollbar-track{
+    background:transparent;
+  }
+
+  .lk-scroll::-webkit-scrollbar-thumb{
+    background:${t.border};
+    border-radius:10px;
+    border:2px solid transparent;
+    background-clip:padding-box;
+  }
+
+  .lk-scroll::-webkit-scrollbar-thumb:hover{
+    background:${t.primary};
+  }
+
+  .lk-scroll table{
+    min-width:max-content;
+  }
+
+  .lk-scroll thead th{
+    position:sticky;
+    top:0;
+    z-index:2;
+    backdrop-filter:blur(6px);
+  }
+
   @media(max-width:860px){
-          .lk-sidebar{position:fixed!important;z-index:60!important;height:100dvh!important;width:min(280px,86vw)!important;transform:translateX(-110%);transition:transform .32s cubic-bezier(.4,0,.2,1);box-shadow:0 18px 50px rgba(0,0,0,.28)}
-          .lk-sidebar.open{transform:none!important}
-          .lk-maincol{margin-left:0!important;padding-top:0!important;width:100%!important}
-         .lk-header{position:static!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;min-height:58px;flex-wrap:wrap!important}
-          .lk-titlebar{position:static!important;top:auto!important;background:transparent!important}
-          .lk-desk{display:none!important}
-          .lk-mobtog{display:grid!important;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:9px!important;background:${t.hover}!important}
-        }
-
-        /* Tablet */
-        @media(max-width:900px){
-          .lk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-          .lk-chart-grid{grid-template-columns:minmax(0,1fr)!important}
-          .lk-main{padding:16px 18px 24px!important}
-          .lk-titlebar{padding:18px 18px 6px!important}
-          .lk-panel-head{padding:14px 16px!important}
-          .lk-panel-body{padding:16px!important}
-        }
-
-        /* Date-range popover: keep it inside the viewport. */
-        @media(max-width:680px){
-          .lk-daterange-pop{position:fixed!important;left:10px!important;right:10px!important;top:68px!important;width:auto!important;max-width:none!important;max-height:calc(100dvh - 82px)!important;overflow-y:auto!important;flex-direction:column!important;flex-wrap:nowrap!important;gap:10px!important;padding:12px!important}
-          .lk-daterange-pop > div:first-child{width:100%;min-width:0!important;border-right:none!important;border-bottom:1px solid ${t.border};padding-right:0!important;padding-bottom:8px!important;flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important}
-          .lk-daterange-pop > div:first-child button{white-space:nowrap;flex:0 0 auto}
-          .lk-daterange-pop > div:nth-child(2){width:100%!important}
-          .lk-calendar-pair{display:grid!important;grid-template-columns:repeat(2,minmax(188px,1fr))!important;overflow-x:auto!important;padding-bottom:4px}
-          .lk-calendar{width:100%!important}
-          .lk-date-actions{position:sticky;bottom:-12px;background:${t.card};padding:10px 0 2px}
-        }
-
-        /* Mobile */
-        @media(max-width:640px){
-          html{font-size:15px}
-          body{min-width:0;touch-action:manipulation}
-          .lk-header{padding:10px 12px!important;gap:8px!important}
-          .lk-header-actions{margin-left:auto!important;gap:7px!important;flex:0 0 auto}
-          .lk-header-actions > button,.lk-header-actions > div > button{min-width:36px;min-height:36px}
-          .lk-search{order:10!important;flex:1 0 100%!important;max-width:none!important;width:100%!important;padding:9px 12px!important}
-          .lk-search input{font-size:16px!important}
-          .lk-search kbd{display:none!important}
-          .lk-titlebar{padding:14px 12px 6px!important;gap:12px!important;align-items:flex-start!important}
-          .lk-title-copy{width:100%}
-          .lk-title-copy p{line-height:1.45}
-          .lk-filters{width:100%!important;display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
-          .lk-filters > *{width:100%!important;min-width:0!important;max-width:none!important}
-          .lk-filters > span{justify-content:flex-start!important}
-          .lk-filters > button,.lk-multiselect > button,.lk-date-picker > button{width:100%!important;min-height:44px;justify-content:center!important}
-          .lk-multiselect{min-width:0!important;width:100%!important}
-          .lk-multiselect-menu{left:0!important;right:auto!important;width:min(280px,calc(100vw - 24px))!important;max-height:min(360px,65dvh)!important;overflow:auto!important}
-          .lk-date-picker{width:100%!important}
-          .lk-date-button{width:100%!important;justify-content:center!important}
-          .lk-main{padding:12px 12px 24px!important;gap:14px!important}
-          .lk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
-          .lk-kpi-card{padding:14px!important;border-radius:14px!important;gap:8px!important}
-          .lk-kpi-card:hover{transform:none!important}
-          .lk-kpi-val{font-size:clamp(20px,7vw,26px)!important}
-          .lk-ai-grid{grid-template-columns:minmax(0,1fr)!important}
-          .lk-panel{border-radius:14px!important}
-          .lk-panel-head{padding:13px 14px!important}
-          .lk-panel-body{padding:12px!important}
-          .lk-panel-head h3{font-size:14px!important;line-height:1.35}
-          .lk-chart-grid{gap:14px!important}
-         .lk-scroll{margin:0 -12px;padding:0 12px;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
-          .lk-scroll table{font-size:12px!important}
-          .lk-scroll th,.lk-scroll td{padding:9px 8px!important;white-space:nowrap}
-          h1{font-size:19px!important}
-          .lk-export-label{display:none!important}
-          .lk-updated{display:none!important}
-          .lk-report-pop,.lk-notification-pop,.lk-user-pop{position:fixed!important;left:10px!important;right:10px!important;top:62px!important;width:auto!important;max-height:calc(100dvh - 76px)!important;overflow-y:auto!important}
-          .lk-modal-backdrop{padding:10px!important;align-items:end!important}
-          .lk-admin-modal{max-width:none!important;max-height:92dvh!important;overflow-y:auto!important;border-radius:18px 18px 0 0!important;padding:18px!important}
-          .lk-admin-selects{flex-direction:column!important}
-          .lk-modal-actions{display:grid!important;grid-template-columns:1fr 1fr!important}
-          .lk-modal-actions button{width:100%!important;min-height:44px}
-          .lk-back-top{right:12px!important;bottom:12px!important;width:42px!important;height:42px!important}
-        }
-
-        /* Small phones */
-        @media(max-width:460px){
-          .lk-kpis{grid-template-columns:1fr!important}
-          .lk-header-actions{gap:4px!important}
-          .lk-header-actions > div:nth-of-type(1){display:none!important}
-          .lk-panel-body{padding:11px!important}
-          .lk-scroll{margin:0 -11px;padding:0 11px}
-          .lk-calendar-pair{grid-template-columns:1fr!important;overflow:visible!important}
-          .lk-calendar{min-width:0!important}
-          .lk-date-actions{display:grid!important;grid-template-columns:1fr 1fr!important}
-          .lk-date-actions button{width:100%!important}
-        }
-
-        @media(max-width:360px){
-          .lk-main,.lk-titlebar,.lk-header{padding-left:9px!important;padding-right:9px!important}
-          .lk-header-actions button{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;padding:0!important}
-          .lk-kpi-card{padding:13px!important}
-        }
-        .lk-score-table-wrap {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
-  -webkit-overflow-scrolling: touch;
-}
-
-.lk-score-table {
-  width: 100%;
-  min-width: 720px;
-  border-collapse: separate;
-  border-spacing: 0;
-  table-layout: fixed;
-  font-size: 13px;
-}
-
-.lk-score-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  padding: 11px 12px;
-  background: #f1f3f4;
-  color: #5f6368;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: left;
-  white-space: nowrap;
-  border-bottom: 2px solid #dadce0;
-}
-
-.lk-score-table thead th.num-head {
-  text-align: right;
-}
-
-.lk-score-table tbody td {
-  padding: 11px 12px;
-  border-top: 1px solid #dadce0;
-  vertical-align: middle;
-}
-
-.lk-score-table .rank-cell {
-  text-align: left;
-  font-weight: 600;
-}
-
-.lk-score-table .name-cell {
-  text-align: left;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.lk-score-table .score-cell,
-.lk-score-table .num-cell {
-  text-align: right;
-  white-space: nowrap;
-}
-
-@media (max-width: 680px) {
-  .lk-score-table {
-    min-width: 720px;
+    .lk-scroll thead th{
+      top:58px!important;
+      z-index:20!important;
+    }
   }
 
-  .lk-score-table thead th,
-  .lk-score-table tbody td {
-    padding: 10px;
-  }
-    .lk-table-scroll thead th {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: #f1f3f4;
-  white-space: nowrap;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-}
-
-@media (max-width: 640px) {
-  .lk-table-scroll {
-    max-height: 65vh;
-    overflow-x: auto;
-    overflow-y: auto;
+  .lk-row{
+    transition:background .15s ease;
   }
 
-  .lk-table-scroll table {
-    min-width: 720px;
+  /* UI upgrade: subtle table zebra + crisper hover */
+  .lk-scroll tbody tr:nth-child(even){
+    background:${dark ? "rgba(255,255,255,.015)" : "rgba(60,64,67,.012)"};
   }
 
-  .lk-table-scroll thead th {
-    top: 0;
-    z-index: 50;
+  .lk-scroll tbody tr:hover{
+    background:${t.hover}!important;
   }
-}
-}
-</style>
 
-}`
+  /* UI upgrade: nav items get a smooth slide on hover */
+  .lk-nav-item{
+    transition:
+      background .18s ease,
+      color .18s ease,
+      padding-left .18s ease;
+  }
 
-}
-</style>
+  .lk-nav-item:hover{
+    padding-left:18px!important;
+  }
+
+  /* UI upgrade: popovers animate in */
+  .lk-daterange-pop,
+  .lk-pop{
+    animation:popIn .18s cubic-bezier(.4,0,.2,1) both;
+  }
+
+  .lk-mobtog{
+    display:none;
+  }
+
+  .lk-header-actions{
+    min-width:0;
+  }
+
+  .lk-panel,
+  .lk-kpi-card,
+  .lk-chart-grid,
+  .lk-ai-grid{
+    min-width:0;
+  }
+
+  .lk-panel-body{
+    min-width:0;
+  }
+
+  .lk-chart-grid > *,
+  .lk-ai-grid > *{
+    min-width:0;
+  }
+
+  .lk-period-picker{
+    max-width:100%;
+    overflow-x:auto;
+    flex-wrap:nowrap!important;
+    padding-bottom:3px;
+    scrollbar-width:none;
+  }
+
+  .lk-period-picker::-webkit-scrollbar{
+    display:none;
+  }
+
+  /* NEW: table density toggle */
+  .lk-density-compact table td,
+  .lk-density-compact table th{
+    padding-top:5px!important;
+    padding-bottom:5px!important;
+    font-size:12px!important;
+  }
+
+  .lk-density-compact .lk-row td{
+    padding-top:5px!important;
+    padding-bottom:5px!important;
+  }
+
+  /* =====================================================
+     SIDEBAR / TABLET
+     ===================================================== */
+
+  @media(max-width:860px){
+
+    .lk-sidebar{
+      position:fixed!important;
+      z-index:60!important;
+      height:100dvh!important;
+      width:min(280px,86vw)!important;
+      transform:translateX(-110%);
+      transition:transform .32s cubic-bezier(.4,0,.2,1);
+      box-shadow:0 18px 50px rgba(0,0,0,.28);
+    }
+
+    .lk-sidebar.open{
+      transform:none!important;
+    }
+
+    .lk-maincol{
+      margin-left:0!important;
+      padding-top:0!important;
+      width:100%!important;
+    }
+
+    .lk-header{
+      position:static!important;
+      top:auto!important;
+      left:auto!important;
+      right:auto!important;
+      width:100%!important;
+      min-height:58px;
+      flex-wrap:wrap!important;
+    }
+
+    .lk-titlebar{
+      position:static!important;
+      top:auto!important;
+      background:transparent!important;
+    }
+
+    .lk-desk{
+      display:none!important;
+    }
+
+    .lk-mobtog{
+      display:grid!important;
+      place-items:center;
+      flex:0 0 36px;
+      width:36px;
+      height:36px;
+      border-radius:9px!important;
+      background:${t.hover}!important;
+    }
+  }
+
+  /* Tablet */
+  @media(max-width:900px){
+
+    .lk-kpis{
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    }
+
+    .lk-chart-grid{
+      grid-template-columns:minmax(0,1fr)!important;
+    }
+
+    .lk-main{
+      padding:16px 18px 24px!important;
+    }
+
+    .lk-titlebar{
+      padding:18px 18px 6px!important;
+    }
+
+    .lk-panel-head{
+      padding:14px 16px!important;
+    }
+
+    .lk-panel-body{
+      padding:16px!important;
+    }
+  }
+
+  /* =====================================================
+     DATE RANGE
+     ===================================================== */
+
+  @media(max-width:680px){
+
+    .lk-daterange-pop{
+      position:fixed!important;
+      left:10px!important;
+      right:10px!important;
+      top:68px!important;
+      width:auto!important;
+      max-width:none!important;
+      max-height:calc(100dvh - 82px)!important;
+      overflow-y:auto!important;
+      flex-direction:column!important;
+      flex-wrap:nowrap!important;
+      gap:10px!important;
+      padding:12px!important;
+    }
+
+    .lk-daterange-pop > div:first-child{
+      width:100%;
+      min-width:0!important;
+      border-right:none!important;
+      border-bottom:1px solid ${t.border};
+      padding-right:0!important;
+      padding-bottom:8px!important;
+      flex-direction:row!important;
+      flex-wrap:nowrap!important;
+      overflow-x:auto!important;
+    }
+
+    .lk-daterange-pop > div:first-child button{
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+
+    .lk-daterange-pop > div:nth-child(2){
+      width:100%!important;
+    }
+
+    .lk-calendar-pair{
+      display:grid!important;
+      grid-template-columns:repeat(2,minmax(188px,1fr))!important;
+      overflow-x:auto!important;
+      padding-bottom:4px;
+    }
+
+    .lk-calendar{
+      width:100%!important;
+    }
+
+    .lk-date-actions{
+      position:sticky;
+      bottom:-12px;
+      background:${t.card};
+      padding:10px 0 2px;
+    }
+  }
+
+  /* =====================================================
+     MOBILE
+     ===================================================== */
+
+  @media(max-width:640px){
+
+    html{
+      font-size:15px;
+    }
+
+    body{
+      min-width:0;
+      touch-action:manipulation;
+    }
+
+    .lk-header{
+      padding:10px 12px!important;
+      gap:8px!important;
+    }
+
+    .lk-header-actions{
+      margin-left:auto!important;
+      gap:7px!important;
+      flex:0 0 auto;
+    }
+
+    .lk-header-actions > button,
+    .lk-header-actions > div > button{
+      min-width:36px;
+      min-height:36px;
+    }
+
+    .lk-search{
+      order:10!important;
+      flex:1 0 100%!important;
+      max-width:none!important;
+      width:100%!important;
+      padding:9px 12px!important;
+    }
+
+    .lk-search input{
+      font-size:16px!important;
+    }
+
+    .lk-search kbd{
+      display:none!important;
+    }
+
+    .lk-titlebar{
+      padding:14px 12px 6px!important;
+      gap:12px!important;
+      align-items:flex-start!important;
+    }
+
+    .lk-title-copy{
+      width:100%;
+    }
+
+    .lk-title-copy p{
+      line-height:1.45;
+    }
+
+    .lk-filters{
+      width:100%!important;
+      display:grid!important;
+      grid-template-columns:1fr!important;
+      gap:8px!important;
+    }
+
+    .lk-filters > *{
+      width:100%!important;
+      min-width:0!important;
+      max-width:none!important;
+    }
+
+    .lk-filters > span{
+      justify-content:flex-start!important;
+    }
+
+    .lk-filters > button,
+    .lk-multiselect > button,
+    .lk-date-picker > button{
+      width:100%!important;
+      min-height:44px;
+      justify-content:center!important;
+    }
+
+    .lk-multiselect{
+      min-width:0!important;
+      width:100%!important;
+    }
+
+    .lk-multiselect-menu{
+      left:0!important;
+      right:auto!important;
+      width:min(280px,calc(100vw - 24px))!important;
+      max-height:min(360px,65dvh)!important;
+      overflow:auto!important;
+    }
+
+    .lk-date-picker{
+      width:100%!important;
+    }
+
+    .lk-date-button{
+      width:100%!important;
+      justify-content:center!important;
+    }
+
+    .lk-main{
+      padding:12px 12px 24px!important;
+      gap:14px!important;
+    }
+
+    .lk-kpis{
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:10px!important;
+    }
+
+    .lk-kpi-card{
+      padding:14px!important;
+      border-radius:14px!important;
+      gap:8px!important;
+    }
+
+    .lk-kpi-card:hover{
+      transform:none!important;
+    }
+
+    .lk-kpi-val{
+      font-size:clamp(20px,7vw,26px)!important;
+    }
+
+    .lk-ai-grid{
+      grid-template-columns:minmax(0,1fr)!important;
+    }
+
+    .lk-panel{
+      border-radius:14px!important;
+    }
+
+    .lk-panel-head{
+      padding:13px 14px!important;
+    }
+
+    .lk-panel-body{
+      padding:12px!important;
+    }
+
+    .lk-panel-head h3{
+      font-size:14px!important;
+      line-height:1.35;
+    }
+
+    .lk-chart-grid{
+      gap:14px!important;
+    }
+
+    .lk-scroll{
+      margin:0 -12px;
+      padding:0 12px;
+      overflow-x:auto!important;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    .lk-scroll table{
+      font-size:12px!important;
+    }
+
+    .lk-scroll th,
+    .lk-scroll td{
+      padding:9px 8px!important;
+      white-space:nowrap;
+    }
+
+    h1{
+      font-size:19px!important;
+    }
+
+    .lk-export-label{
+      display:none!important;
+    }
+
+    .lk-updated{
+      display:none!important;
+    }
+
+    .lk-report-pop,
+    .lk-notification-pop,
+    .lk-user-pop{
+      position:fixed!important;
+      left:10px!important;
+      right:10px!important;
+      top:62px!important;
+      width:auto!important;
+      max-height:calc(100dvh - 76px)!important;
+      overflow-y:auto!important;
+    }
+
+    .lk-modal-backdrop{
+      padding:10px!important;
+      align-items:end!important;
+    }
+
+    .lk-admin-modal{
+      max-width:none!important;
+      max-height:92dvh!important;
+      overflow-y:auto!important;
+      border-radius:18px 18px 0 0!important;
+      padding:18px!important;
+    }
+
+    .lk-admin-selects{
+      flex-direction:column!important;
+    }
+
+    .lk-modal-actions{
+      display:grid!important;
+      grid-template-columns:1fr 1fr!important;
+    }
+
+    .lk-modal-actions button{
+      width:100%!important;
+      min-height:44px;
+    }
+
+    .lk-back-top{
+      right:12px!important;
+      bottom:12px!important;
+      width:42px!important;
+      height:42px!important;
+    }
+  }
+
+  /* =====================================================
+     SMALL PHONES
+     ===================================================== */
+
+  @media(max-width:460px){
+
+    .lk-kpis{
+      grid-template-columns:1fr!important;
+    }
+
+    .lk-header-actions{
+      gap:4px!important;
+    }
+
+    .lk-header-actions > div:nth-of-type(1){
+      display:none!important;
+    }
+
+    .lk-panel-body{
+      padding:11px!important;
+    }
+
+    .lk-scroll{
+      margin:0 -11px;
+      padding:0 11px;
+    }
+
+    .lk-calendar-pair{
+      grid-template-columns:1fr!important;
+      overflow:visible!important;
+    }
+
+    .lk-calendar{
+      min-width:0!important;
+    }
+
+    .lk-date-actions{
+      display:grid!important;
+      grid-template-columns:1fr 1fr!important;
+    }
+
+    .lk-date-actions button{
+      width:100%!important;
+    }
+  }
+
+  @media(max-width:360px){
+
+    .lk-main,
+    .lk-titlebar,
+    .lk-header{
+      padding-left:9px!important;
+      padding-right:9px!important;
+    }
+
+    .lk-header-actions button{
+      width:34px!important;
+      height:34px!important;
+      min-width:34px!important;
+      min-height:34px!important;
+      padding:0!important;
+    }
+
+    .lk-kpi-card{
+      padding:13px!important;
+    }
+  }
+
+  /* =====================================================
+     COMMON TABLE SCROLL + STICKY HEADER
+     Use this wrapper for ALL dashboard tables.
+     ===================================================== */
+
+  .lk-fixed-table-scroll{
+    width:100%;
+    height:560px;
+    max-height:65vh;
+
+    overflow-x:auto;
+    overflow-y:auto;
+
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+
+    position:relative;
+  }
+
+  /* Every table inside this wrapper */
+  .lk-fixed-table-scroll table{
+    width:100%;
+    min-width:720px;
+
+    border-collapse:separate;
+    border-spacing:0;
+
+    font-size:13px;
+  }
+
+  /* Fixed table header */
+  .lk-fixed-table-scroll thead th{
+    position:sticky!important;
+    top:0!important;
+
+    z-index:100!important;
+
+    background:#f1f3f4!important;
+
+    white-space:nowrap;
+
+    box-shadow:0 2px 6px rgba(0,0,0,.10);
+  }
+
+  /* Table body */
+  .lk-fixed-table-scroll tbody td{
+    white-space:nowrap;
+  }
+
+  /* =====================================================
+     YEARLY SCORE TABLE
+     Existing table styling
+     ===================================================== */
+
+  .lk-score-table{
+    width:100%;
+    min-width:720px;
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout:fixed;
+    font-size:13px;
+  }
+
+  .lk-score-table thead th{
+    position:sticky!important;
+    top:0!important;
+    z-index:100!important;
+
+    padding:11px 12px;
+
+    background:#f1f3f4!important;
+    color:#5f6368;
+
+    font-size:12px;
+    font-weight:700;
+    text-align:left;
+    white-space:nowrap;
+
+    border-bottom:2px solid #dadce0;
+
+    box-shadow:0 2px 6px rgba(0,0,0,.10);
+  }
+
+  .lk-score-table thead th.num-head{
+    text-align:right;
+  }
+
+  .lk-score-table tbody td{
+    padding:11px 12px;
+    border-top:1px solid #dadce0;
+    vertical-align:middle;
+  }
+
+  .lk-score-table .rank-cell{
+    text-align:left;
+    font-weight:600;
+  }
+
+  .lk-score-table .name-cell{
+    text-align:left;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .lk-score-table .score-cell,
+  .lk-score-table .num-cell{
+    text-align:right;
+    white-space:nowrap;
+  }
+
+  /* =====================================================
+     MOBILE TABLES
+     ===================================================== */
+
+  @media(max-width:640px){
+
+    .lk-fixed-table-scroll{
+      height:60vh;
+      max-height:60vh;
+
+      overflow-x:auto;
+      overflow-y:auto;
+
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+    }
+
+    .lk-fixed-table-scroll table{
+      min-width:720px;
+    }
+
+    .lk-fixed-table-scroll thead th{
+      position:sticky!important;
+      top:0!important;
+      z-index:100!important;
+
+      padding:9px 10px;
+      font-size:11px;
+    }
+
+    .lk-fixed-table-scroll tbody td{
+      padding:9px 10px!important;
+      font-size:12px;
+    }
+
+    .lk-score-table{
+      min-width:720px;
+    }
+
+    .lk-score-table thead th,
+    .lk-score-table tbody td{
+      padding:10px;
+    }
+  }
+
+`}</style>
 
       {/* SIDEBAR */}
       <aside className={`lk-sidebar ${sidebar ? "open" : ""}`} style={{
@@ -2335,7 +2887,7 @@ export default function App() {
 
           {tab === "emp" && (
             <Panel t={t} title={`Employee Performance · ${sorted.length} employees`} style={{ padding: 0 }}>
-              <div ref={scrollRef} className="lk-scroll" style={{ overflowX: "auto" }}>
+              <div ref={scrollRef} className="lk-fixed-table-scroll">
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead><tr>
                     <Th>Rank</Th><Th k="name">Employee</Th><Th k="dept">Department</Th>
