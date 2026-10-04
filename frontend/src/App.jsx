@@ -923,11 +923,13 @@ function LoginPage({ onLogin }) {
                 background: "transparent", color: t.primary, fontWeight: 600, cursor: "pointer"
               }}>Sign in</button>
             </p>
-            <div style={{ textAlign: "center", marginTop: 18, fontSize: 12, color: t.sub }}>
+            
+          </>
+          
+        )}
+        <div style={{ textAlign: "center", marginTop: 18, fontSize: 12, color: t.sub }}>
           Made by <b>Shivam Sengar</b>
         </div>
-          </>
-        )}
       </div>
       
     </div>
