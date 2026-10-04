@@ -29,6 +29,7 @@ const API_URL = (
   "http://localhost:3000"
 ).replace(/\/$/, "");
 const FORM_URL = (import.meta.env.VITE_FORM_URL || "https://script.google.com/a/macros/bhaskarsilkmills.in/s/AKfycbxnMo8AIgEizuCRtoH4bQdza-nFcepsfgn7ayu-u7tdC1ozbwyr6O7oZW9iNz5ZQBxk/exec").trim();
+const SURVEY_URL = (import.meta.env.VITE_SURVEY_URL || "https://script.google.com/macros/s/AKfycbydhRiBn9V6HWm2hjotqePDxRH4kAC-gJD0AV803qGDnSNBvV7tHPLQ6DrRg8QxDXge5w/exec").trim();
 
 // async function api(action, payload = {}) {
 //   try {
@@ -1518,6 +1519,7 @@ export default function App() {
     { id: "scores", label: "Score Summary", icon: Award },
     { id: "board", label: "Leaderboard", icon: Trophy },
     { id: "form", label: "Employee Form", icon: FileText, href: "https://script.google.com/a/macros/bhaskarsilkmills.in/s/AKfycbxnMo8AIgEizuCRtoH4bQdza-nFcepsfgn7ayu-u7tdC1ozbwyr6O7oZW9iNz5ZQBxk/exec" },
+    { id: "survey", label: "Customer Survey", icon: FileSpreadsheet },
     ...(isAdmin ? [{ id: "admin", label: "User Management", icon: Settings }] : []),
   ];
 
@@ -2513,6 +2515,25 @@ export default function App() {
               />
             </div>
           )}
+
+          {tab === "survey" && (
+  <div
+    style={{
+      width: "100%",
+      height: "calc(100vh - 120px)",
+      overflow: "hidden",
+      borderRadius: 12,
+      background: "#fff",
+      border: `1px solid ${t.border}`
+    }}
+  >
+    <iframe
+      src={SURVEY_URL}
+      title="Customer Survey"
+      style={{ width: "100%", height: "100%", border: "none" }}
+    />
+  </div>
+)}
 
 
           {tab === "scores" && (
