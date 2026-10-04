@@ -1,3 +1,4 @@
+import { DARK_TOKENS, DARK_CSS } from "./darkTheme";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis,
@@ -79,12 +80,7 @@ const TOKENS = {
     sub: "#5F6368", hover: "#F1F3F4", track: "#E8EAED",
     header: "#5F6368", // same as sub in light mode
   },
-  dark: {
-    bg: "#1B1C1F", card: "#26282C", border: "#3C4043", primary: "#8AB4F8",
-    success: "#81C995", warning: "#FDD663", danger: "#F28B82", text: "#E8EAED",
-    sub: "#9AA0A6", hover: "#303134", track: "#3C4043",
-    header: "#D4AF37", // gold in dark mode
-  },
+  dark: DARK_TOKENS,
 };
 
 const DEPARTMENTS = [
@@ -1638,8 +1634,8 @@ export default function App() {
   return (
     <div style={{
       minHeight: "100vh", width: "100%", maxWidth: "100vw", overflowX: "hidden",
-      background: dark
-        ? "radial-gradient(1200px 700px at 80% -5%, rgba(138,180,248,.06), transparent 60%), " + t.bg
+            background: dark
+        ? "linear-gradient(160deg, #0D1117 0%, #10151D 55%, #111821 100%)"
         : "radial-gradient(1200px 700px at 80% -5%, rgba(26,115,232,.05), transparent 60%), " + t.bg,
       color: t.text,
       fontFamily: "'Inter','Google Sans','Segoe UI',Roboto,system-ui,sans-serif",
@@ -2439,6 +2435,7 @@ export default function App() {
       padding:10px;
     }
   }
+      ${dark ? DARK_CSS : ""}
 
 `}</style>
 
@@ -2467,7 +2464,7 @@ export default function App() {
                 // Normal dashboard tabs
                 setTab(n.id);
               }}
-              className="lk-nav-item"
+             className={`lk-nav-item${on ? " on" : ""}`}
               style={{
                 position: "relative",
                 display: "flex",
