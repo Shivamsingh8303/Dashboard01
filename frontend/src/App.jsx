@@ -773,9 +773,7 @@ function LoginPage({ onLogin }) {
               {m === "login" ? "Sign In" : "Sign Up"}
             </button>
           ))}
-                  <div style={{ textAlign: "center", marginTop: 18, fontSize: 12, color: t.sub }}>
-          Made by <b>Shivam Sengar</b>
-        </div>
+                  
         </div>
 
         {err && (
@@ -928,6 +926,9 @@ function LoginPage({ onLogin }) {
           </>
         )}
       </div>
+      <div style={{ textAlign: "center", marginTop: 18, fontSize: 12, color: t.sub }}>
+          Made by <b>Shivam Sengar</b>
+        </div>
     </div>
   );
 }
