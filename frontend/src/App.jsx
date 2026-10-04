@@ -928,8 +928,8 @@ function LoginPage({ onLogin }) {
           
         )}
         <div style={{ textAlign: "center", marginTop: 18, fontSize: 12, color: t.sub }}>
-          Made by <b>Shivam Sengar</b>
-        </div>
+  Made by <b style={{ color: t.primary }}>Shivam Sengar</b>
+</div>
       </div>
       
     </div>
