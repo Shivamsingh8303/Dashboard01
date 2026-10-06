@@ -26,13 +26,13 @@ const app = express();
 app.use(compression());                // MUST be before routes — shrinks JSON ~90%
 app.use(cors());
 app.use(express.json({ limit: "20mb" }));
-registerEmployeeEmailRoutes(app);
 
 const client = new MongoClient(MONGO_URI, {
   compressors: ["zstd"],
   maxPoolSize: 20,
 });
 let db;
+registerEmployeeEmailRoutes(app, () => db);
 registerAssessmentRoutes(app, client, DB_NAME, SCORES_COL); // employee form -> MongoDB "assessments"
 
 /* ----------------------------------------------------------------

@@ -1,24 +1,34 @@
-import mongoose from "mongoose";
+// Backend routes for the Employee Emails page.
+// Uses the SAME native MongoDB connection your index.js already has (no mongoose).
+//
+// In index.js:
+//     import registerEmployeeEmailRoutes from "./employeeEmails.js";
+//     registerEmployeeEmailRoutes(app, () => db);   // db = your connected Db, e.g. client.db("autoscore")
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const COLLECTION = "employeecontacts";
 
-const employeeContactSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, unique: true, trim: true },
-    dept: { type: String, default: "" },
-    email: { type: String, default: "", trim: true, lowercase: true },
-  },
-  { timestamps: true }
-);
+export default function registerEmployeeEmailRoutes(app, getDb) {
+  let indexReady = false;
 
-export const EmployeeContact =
-  mongoose.models.EmployeeContact || mongoose.model("EmployeeContact", employeeContactSchema);
+  const col = async () => {
+    const db = typeof getDb === "function" ? getDb() : getDb;
+    if (!db) throw new Error("Database is not connected yet");
+    const c = db.collection(COLLECTION);
+    if (!indexReady) {
+      await c.createIndex({ name: 1 }, { unique: true });
+      indexReady = true;
+    }
+    return c;
+  };
 
-export default function registerEmployeeEmailRoutes(app) {
   // Returns every saved name + email
   app.post("/getEmployeeEmails", async (req, res) => {
     try {
-      const list = await EmployeeContact.find({}, { _id: 0, name: 1, dept: 1, email: 1 }).lean();
+      const c = await col();
+      const list = await c
+        .find({}, { projection: { _id: 0, name: 1, dept: 1, email: 1 } })
+        .toArray();
       res.json({ ok: true, list });
     } catch (err) {
       res.json({ ok: false, error: err.message });
@@ -40,12 +50,18 @@ export default function registerEmployeeEmailRoutes(app) {
         ops.push({
           updateOne: {
             filter: { name },
-            update: { $set: { dept: String(it.dept || ""), email } },
+            update: {
+              $set: { dept: String(it.dept || ""), email, updatedAt: new Date() },
+              $setOnInsert: { createdAt: new Date() },
+            },
             upsert: true,
           },
         });
       }
-      if (ops.length) await EmployeeContact.bulkWrite(ops);
+      if (ops.length) {
+        const c = await col();
+        await c.bulkWrite(ops);
+      }
       res.json({ ok: true, saved: ops.length });
     } catch (err) {
       res.json({ ok: false, error: err.message });
