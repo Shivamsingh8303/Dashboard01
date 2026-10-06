@@ -4,6 +4,7 @@ import cors from "cors";
 import { MongoClient } from "mongodb";
 import compression from "compression";
 import { registerAssessmentRoutes } from "./assessments.js";
+import registerEmployeeEmailRoutes from "./employeeEmails.js";
 
 /* ----------------------------------------------------------------
    CONFIG — set these as environment variables in production.
@@ -25,6 +26,7 @@ const app = express();
 app.use(compression());                // MUST be before routes — shrinks JSON ~90%
 app.use(cors());
 app.use(express.json({ limit: "20mb" }));
+registerEmployeeEmailRoutes(app);
 
 const client = new MongoClient(MONGO_URI, {
   compressors: ["zstd"],
@@ -83,25 +85,25 @@ app.post("/getData", async (req, res) => {
       // Skip INACTIVE / NOT ACTIVE employees — keep Active, #N/A, and blank.
       { $match: { "ACTIVE / NOT ACTIVE": { $not: /not|inactive/i } } },
       // Send only the 14 fields the frontend actually reads.
-     {
-  $project: {
-    _id: 0,
-    date: "$From",
-    name: "$Person Name",
-    dept: "$Department",
-    planned: { $convert: { input: "$Total TODAY Activities (Planned)", to: "double", onError: 0, onNull: 0 } },
-    actual:  { $convert: { input: "$TOTAL Activities done (Actual)",   to: "double", onError: 0, onNull: 0 } },
-    late:    { $convert: { input: "$Activities Late Done",             to: "double", onError: 0, onNull: 0 } },
-    onTime:  { $convert: { input: "$Activities done -On time",         to: "double", onError: 0, onNull: 0 } },
-    pending: { $convert: { input: "$PENDING ACTIVITES",                to: "double", onError: 0, onNull: 0 } },
-    score:   { $convert: { input: "$SCORING",                          to: "double", onError: 0, onNull: 0 } },
-    week: "$Week",
-    monthYear: "$Month & Year",
-    quarter: "$Quarter",
-    active: "$ACTIVE / NOT ACTIVE",
-    year: "$Year",
-  },
-},
+      {
+        $project: {
+          _id: 0,
+          date: "$From",
+          name: "$Person Name",
+          dept: "$Department",
+          planned: { $convert: { input: "$Total TODAY Activities (Planned)", to: "double", onError: 0, onNull: 0 } },
+          actual: { $convert: { input: "$TOTAL Activities done (Actual)", to: "double", onError: 0, onNull: 0 } },
+          late: { $convert: { input: "$Activities Late Done", to: "double", onError: 0, onNull: 0 } },
+          onTime: { $convert: { input: "$Activities done -On time", to: "double", onError: 0, onNull: 0 } },
+          pending: { $convert: { input: "$PENDING ACTIVITES", to: "double", onError: 0, onNull: 0 } },
+          score: { $convert: { input: "$SCORING", to: "double", onError: 0, onNull: 0 } },
+          week: "$Week",
+          monthYear: "$Month & Year",
+          quarter: "$Quarter",
+          active: "$ACTIVE / NOT ACTIVE",
+          year: "$Year",
+        },
+      },
     ], { allowDiskUse: true }).toArray();
 
     for (const r of rows) r.date = cleanDate(r.date);
