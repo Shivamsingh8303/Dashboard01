@@ -2,7 +2,7 @@ const { google } = require("googleapis");
 const { MongoClient } = require("mongodb");
 
 const SHEET_ID = "1OUGIjQle3Gx1cQcRJZ4a6UpsxfRK0xUGJoT889LSpOM";
-const MONGO_URI = "mongodb://shivam_db_user:iksRLdzPvvV68rE4@ac-w19e57c-shard-00-00.vigjb5y.mongodb.net:27017,ac-w19e57c-shard-00-01.vigjb5y.mongodb.net:27017,ac-w19e57c-shard-00-02.vigjb5y.mongodb.net:27017/?ssl=true&replicaSet=atlas-695gxp-shard-0&authSource=admin&appName=Cluster0";
+const MONGO_URI = "mongodb://shivam_db_user:shivam_bhaskar_123@ac-w19e57c-shard-00-00.vigjb5y.mongodb.net:27017,ac-w19e57c-shard-00-01.vigjb5y.mongodb.net:27017,ac-w19e57c-shard-00-02.vigjb5y.mongodb.net:27017/?ssl=true&replicaSet=atlas-695gxp-shard-0&authSource=admin&appName=Cluster0";
 
 async function main() {
   const auth = new google.auth.GoogleAuth({
