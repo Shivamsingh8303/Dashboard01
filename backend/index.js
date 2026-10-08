@@ -23,10 +23,34 @@ const USERS_COL = "users";   // login/admin accounts
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-app.use(compression());                // MUST be before routes — shrinks JSON ~90%
-app.use(cors());
-app.use(express.json({ limit: "20mb" }));
+app.use(compression());
 
+const allowedOrigins = [
+  "https://dashboard01-seven.vercel.app",
+  "http://localhost:5173",
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests without an Origin header
+    // e.g. Postman, server-to-server requests
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+app.options("*", cors());
+
+app.use(express.json({ limit: "20mb" }));
 const client = new MongoClient(MONGO_URI, {
   compressors: ["zstd"],
   maxPoolSize: 20,
